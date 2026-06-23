@@ -10,12 +10,12 @@
       "use": "@vercel/static"
     }
   ],
-  "rewrites": [
-    { "source": "/", "destination": "/finrobot_equity/web_app/templates/index.html" },
-    { "source": "/index.html", "destination": "/finrobot_equity/web_app/templates/index.html" },
-    { "source": "/login.html", "destination": "/finrobot_equity/web_app/templates/login.html" },
-    { "source": "/login", "destination": "/finrobot_equity/web_app/templates/login.html" },
-    { "source": "/parallel_dashboard.html", "destination": "/finrobot_equity/web_app/templates/parallel_dashboard.html" },
-    { "source": "/static/(.*)", "destination": "/finrobot_equity/web_app/static/$1" }
+  "routes": [
+    { "src": "/static/(.*)", "dest": "/finrobot_equity/web_app/static/$1" },
+    { "src": "/login.html", "dest": "/finrobot_equity/web_app/templates/login.html" },
+    { "src": "/login", "dest": "/finrobot_equity/web_app/templates/login.html" },
+    { "src": "/parallel_dashboard.html", "dest": "/finrobot_equity/web_app/templates/parallel_dashboard.html" },
+    { "src": "/index.html", "dest": "/finrobot_equity/web_app/templates/index.html" },
+    { "src": "/(.*)", "dest": "/finrobot_equity/web_app/templates/index.html" }
   ]
 }
