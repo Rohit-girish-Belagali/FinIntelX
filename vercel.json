@@ -1,0 +1,11 @@
+{
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/", "destination": "/finrobot_equity/web_app/templates/index.html" },
+    { "source": "/index.html", "destination": "/finrobot_equity/web_app/templates/index.html" },
+    { "source": "/login.html", "destination": "/finrobot_equity/web_app/templates/login.html" },
+    { "source": "/login", "destination": "/finrobot_equity/web_app/templates/login.html" },
+    { "source": "/parallel_dashboard.html", "destination": "/finrobot_equity/web_app/templates/parallel_dashboard.html" },
+    { "source": "/static/(.*)", "destination": "/finrobot_equity/web_app/static/$1" }
+  ]
+}
