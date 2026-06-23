@@ -47,7 +47,7 @@ class ReportStructureManager:
         self.metadata = {
             'created_at': datetime.now().isoformat(),
             'version': '2.0',
-            'generator': 'FinRobot Enhanced Report Generator'
+            'generator': 'FinIntelX Enhanced Report Generator'
         }
     
     def create_report_structure(self) -> Dict[str, ReportSection]:

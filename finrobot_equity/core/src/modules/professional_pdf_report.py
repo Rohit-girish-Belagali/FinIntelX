@@ -1307,7 +1307,7 @@ class ProfessionalEquityReport:
         self.elements.append(Paragraph(source_text, self.styles['Caption']))
         
         # 报告信息
-        report_info = f"Report Generated: {datetime.now(EASTERN_TZ).strftime('%Y-%m-%d %H:%M')} ET | {self.data.get('research_source', 'AI4Finance FinRobot')}"
+        report_info = f"Report Generated: {datetime.now(EASTERN_TZ).strftime('%Y-%m-%d %H:%M')} ET | {self.data.get('research_source', 'FinIntelX')}"
         self.elements.append(Paragraph(report_info, self.styles['Caption']))
     
     # =========================================================================
@@ -1486,10 +1486,10 @@ class ProfessionalEquityReport:
         """添加PDF元数据（第一页）"""
         # 设置PDF元数据
         canvas_obj.setTitle(f"{self.company_name} ({self.ticker}) - Equity Research Report")
-        canvas_obj.setAuthor(self.data.get('research_source', 'AI4Finance FinRobot'))
+        canvas_obj.setAuthor(self.data.get('research_source', 'FinIntelX'))
         canvas_obj.setSubject(f"Equity Research Report for {self.company_name}")
         canvas_obj.setKeywords(f"{self.ticker}, {self.company_name}, Equity Research, Investment Analysis")
-        canvas_obj.setCreator('FinRobot Equity Research Platform')
+        canvas_obj.setCreator('FinIntelX Equity Research Platform')
     
     def add_page_header_footer(self, canvas_obj, doc):
         """添加页眉页脚"""

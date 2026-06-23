@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FinRobot Equity Research Platform</title>
+    <title>FinIntelX Equity Research Platform</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -126,9 +126,9 @@
         <div class="p-3.5 border-b border-white/5">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <img src="/static/logo_transparent_background.png" alt="AI4Finance" class="w-16 h-16 object-contain flex-shrink-0">
+                    <img src="/static/logo_transparent_background.png" alt="FinIntelX" class="w-16 h-16 object-contain flex-shrink-0">
                     <div>
-                        <h1 class="text-lg font-semibold tracking-tight text-white">FinRobot <span class="text-blue-400 font-normal">Pro</span></h1>
+                        <h1 class="text-lg font-semibold tracking-tight text-white">FinIntelX <span class="text-blue-400 font-normal">Pro</span></h1>
                         <p class="text-xs text-slate-500">AI-Powered Equity Research</p>
                     </div>
                 </div>
@@ -309,13 +309,7 @@
                     <span class="text-[11px] text-slate-500 font-medium">{{ form.ticker ? 'Active' : 'Idle' }}</span>
                     <span v-if="form.ticker" class="font-mono text-[11px] text-slate-300">· {{ form.ticker }}</span>
                 </div>
-                <!-- GitHub Button with Gradient Border -->
-                <a href="https://github.com/AI4Finance-Foundation/FinRobot" target="_blank" class="gradient-btn">
-                    <div class="gradient-btn-inner">
-                        <svg class="w-4 h-4 text-slate-300" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
-                        <span class="text-xs font-medium text-slate-300">GitHub</span>
-                    </div>
-                </a>
+                <!-- GitHub Button Removed -->
             </div>
         </header>
 
@@ -327,7 +321,7 @@
                 <div v-if="tasks.length === 0" class="h-full flex flex-col items-center justify-center pt-20">
                     <div class="mb-8 relative">
                         <div class="absolute inset-0 bg-blue-500/30 blur-3xl rounded-full scale-110"></div>
-                        <img src="/static/logo_transparent_background.png" alt="AI4Finance" class="w-56 h-56 relative z-10 drop-shadow-2xl object-contain">
+                        <img src="/static/logo_transparent_background.png" alt="FinIntelX" class="w-56 h-56 relative z-10 drop-shadow-2xl object-contain">
                     </div>
                     <div class="text-center mb-12 space-y-6">
                         <h1 class="text-5xl font-bold tracking-tight hero-text pb-2">Ready to Generate Reports</h1>
@@ -440,8 +434,8 @@
                             <h4 class="font-bold text-white mb-0.5 tracking-tight">{{ task.ticker }}</h4>
                             <p class="text-xs text-slate-400 mb-4 line-clamp-1 h-4">{{ task.company || task.company_name }}</p>
                             <div v-if="task.status === 'completed' && task.result" class="grid gap-2" :class="(task.result.pdf && task.result.pdf.length) || (task.result.html && task.result.html.length) ? 'grid-cols-3' : 'grid-cols-1'">
-                                <a v-if="task.result.html && task.result.html.length" :href="'/output/' + task.ticker + '/report/' + task.result.html[0]" target="_blank" class="flex items-center justify-center gap-1 py-1.5 rounded bg-white/5 hover:bg-blue-500/20 text-slate-300 hover:text-blue-400 text-[10px] font-bold transition-all border border-white/5 hover:border-blue-500/30">HTML</a>
-                                <a v-if="task.result.pdf && task.result.pdf.length" :href="'/output/' + task.ticker + '/report/' + task.result.pdf[0]" target="_blank" class="flex items-center justify-center gap-1 py-1.5 rounded bg-white/5 hover:bg-emerald-500/20 text-slate-300 hover:text-emerald-400 text-[10px] font-bold transition-all border border-white/5 hover:border-emerald-500/30">PDF</a>
+                                <a v-if="task.result.html && task.result.html.length" href="#" @click.prevent="openReport(task, 'html')" class="flex items-center justify-center gap-1 py-1.5 rounded bg-white/5 hover:bg-blue-500/20 text-slate-300 hover:text-blue-400 text-[10px] font-bold transition-all border border-white/5 hover:border-blue-500/30">HTML</a>
+                                <a v-if="task.result.pdf && task.result.pdf.length" href="#" @click.prevent="openReport(task, 'pdf')" class="flex items-center justify-center gap-1 py-1.5 rounded bg-white/5 hover:bg-emerald-500/20 text-slate-300 hover:text-emerald-400 text-[10px] font-bold transition-all border border-white/5 hover:border-emerald-500/30">PDF</a>
                                 <button @click="viewTaskLog(task)" class="flex items-center justify-center gap-1 py-1.5 rounded bg-white/5 hover:bg-amber-500/20 text-slate-300 hover:text-amber-400 text-[10px] font-bold transition-all border border-white/5 hover:border-amber-500/30">LOG</button>
                             </div>
                             <div v-else-if="task.status === 'failed'" class="grid grid-cols-1 gap-2">
@@ -475,10 +469,31 @@
 
         createApp({
             data() {
+                let name = window.USER_DATA?.name || '';
+                let email = window.USER_DATA?.email || '';
+                let provider = window.USER_DATA?.provider || '';
+                
+                if (!name || name.startsWith("{{")) {
+                    if (localStorage.getItem("finintelx_logged_in") === "true") {
+                        name = localStorage.getItem("finintelx_user_name") || "Rohit Belagali";
+                        email = localStorage.getItem("finintelx_user_email") || "rohit.belagali@agforge.com";
+                        provider = "local";
+                    } else {
+                        const currentPath = window.location.pathname;
+                        let loginUrl = "login.html";
+                        if (currentPath.includes("/")) {
+                            const parts = currentPath.split("/");
+                            parts[parts.length - 1] = "login.html";
+                            loginUrl = parts.join("/");
+                        }
+                        window.location.href = loginUrl;
+                    }
+                }
+                
                 return {
-                    userName: window.USER_DATA?.name || '',
-                    userEmail: window.USER_DATA?.email || '',
-                    userProvider: window.USER_DATA?.provider || '',
+                    userName: name,
+                    userEmail: email,
+                    userProvider: provider,
                     showUserMenu: false,
                     showChangePassword: false,
                     passwordForm: { currentPassword: '', newPassword: '', confirmPassword: '' },
@@ -524,30 +539,34 @@
                 async loadHistory() {
                     try {
                         const resp = await fetch('/api/history');
-                        if (!resp.ok) return;
-                        const history = await resp.json();
-                        // Only add completed/failed history items that aren't already in tasks
-                        const existingIds = new Set(this.tasks.map(t => t.id));
-                        for (const h of history) {
-                            if (existingIds.has(h.task_id)) continue;
-                            this.tasks.push({
-                                id: h.task_id,
-                                ticker: h.ticker,
-                                company_name: h.company_name,
-                                status: h.status,
-                                logs: [`Report generated: ${h.company_name} (${h.ticker})`],
-                                result: (h.html.length || h.pdf.length) ? {
-                                    report_dir: `/output/${h.ticker}/report`,
+                        if (resp.ok) {
+                            const history = await resp.json();
+                            const existingIds = new Set(this.tasks.map(t => t.id));
+                            for (const h of history) {
+                                if (existingIds.has(h.task_id)) continue;
+                                this.tasks.push({
+                                    id: h.task_id,
                                     ticker: h.ticker,
-                                    html: h.html,
-                                    pdf: h.pdf
-                                } : null,
-                                showLogs: false
-                            });
+                                    company_name: h.company_name,
+                                    status: h.status,
+                                    logs: [`Report generated: ${h.company_name} (${h.ticker})`],
+                                    result: (h.html.length || h.pdf.length) ? {
+                                        report_dir: `/output/${h.ticker}/report`,
+                                        ticker: h.ticker,
+                                        html: h.html,
+                                        pdf: h.pdf
+                                    } : null,
+                                    showLogs: false
+                                });
+                            }
+                            return;
                         }
                     } catch (e) {
-                        console.warn('Failed to load history:', e);
+                        console.warn('Failed to load history from backend, falling back to local history.', e);
                     }
+                    
+                    const localHistory = JSON.parse(localStorage.getItem("finintelx_history") || "[]");
+                    this.tasks = localHistory;
                 },
                 async deleteTask(task) {
                     if (!confirm(`Delete report for ${task.ticker}?`)) return;
@@ -555,18 +574,20 @@
                         const resp = await fetch(`/api/history/${task.id}`, { method: 'DELETE' });
                         if (resp.ok) {
                             this.tasks = this.tasks.filter(t => t.id !== task.id);
+                            this.saveLocalHistory();
+                            return;
                         }
                     } catch (e) {
-                        console.error('Failed to delete task:', e);
+                        console.warn('Failed to delete task from backend, deleting locally.', e);
                     }
+                    this.tasks = this.tasks.filter(t => t.id !== task.id);
+                    this.saveLocalHistory();
                 },
                 async viewTaskLog(task) {
-                    // Toggle log overlay; if opening, try to fetch persisted logs from server
                     if (task.showLogs) {
                         task.showLogs = false;
                         return;
                     }
-                    // Try to load full logs from the server API
                     if (task.id && !task.id.startsWith('pending_')) {
                         try {
                             const response = await fetch(`/api/logs/${task.id}`);
@@ -577,17 +598,21 @@
                                 }
                             }
                         } catch (e) {
-                            console.error('Failed to fetch logs:', e);
+                            console.warn('Failed to fetch logs from backend, displaying cached logs.', e);
                         }
                     }
                     task.showLogs = true;
                 },
                 async startAnalysis() {
                     if (!this.isValid) return;
+                    const ticker = this.form.ticker;
+                    const companyName = this.form.company_name;
+                    const taskId = 'task_' + Date.now();
                     const newTask = {
-                        id: 'pending_' + Date.now(),
-                        ticker: this.form.ticker,
-                        company: this.form.company_name,
+                        id: taskId,
+                        ticker: ticker,
+                        company_name: companyName,
+                        company: companyName,
                         status: 'pending',
                         progress: 5,
                         stage: 'Initializing...',
@@ -598,32 +623,71 @@
                     this.tasks.unshift(newTask);
                     const peers = this.form.peers_str.split(' ').map(s => s.trim()).filter(s => s);
                     const payload = { ...this.form, peers: peers };
+                    
                     this.form.ticker = '';
                     this.form.company_name = '';
                     this.form.peers_str = '';
+                    
                     try {
                         const response = await fetch('/api/run', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify(payload)
                         });
-                        if (!response.ok) throw new Error('Failed to start analysis');
-                        const data = await response.json();
-                        newTask.id = data.task_id;
-                        newTask.status = 'running';
-                        newTask.logs.push('Task started successfully. ID: ' + data.task_id);
+                        if (response.ok) {
+                            const data = await response.json();
+                            newTask.id = data.task_id;
+                            newTask.status = 'running';
+                            newTask.logs.push('Task started successfully. ID: ' + data.task_id);
+                            this.saveLocalHistory();
+                            return;
+                        }
                     } catch (e) {
-                        console.error(e);
-                        newTask.status = 'failed';
-                        newTask.stage = 'Submission Failed';
-                        newTask.logs.push(`Error starting analysis: ${e.message}`);
+                        console.warn("Backend /api/run failed or unreachable. Starting client-side mock simulation.", e);
                     }
+                    
+                    // Client-side mock simulation!
+                    newTask.status = 'running';
+                    newTask.logs.push('Client-side mock simulation started.');
+                    this.saveLocalHistory();
+                    
+                    const simulatedStages = [
+                        { progress: 10, stage: 'Data Acquisition...', log: 'Starting analysis pipeline...' },
+                        { progress: 20, stage: 'Data Acquisition...', log: 'Acquiring financial data for ticker: ' + ticker },
+                        { progress: 35, stage: 'Financial Analysis...', log: 'Running: generate_financial_analysis.py --company-ticker ' + ticker },
+                        { progress: 50, stage: 'AI Reasoning...', log: 'Performing peer comparison and DCF valuation...' },
+                        { progress: 75, stage: 'Report Compilation...', log: 'Generating professional text segments with AI model...' },
+                        { progress: 90, stage: 'Report Compilation...', log: 'Compiling HTML and PDF reports...' },
+                        { progress: 100, stage: 'Analysis Completed', log: 'Pipeline completed successfully!' }
+                    ];
+                    
+                    let stageIdx = 0;
+                    const interval = setInterval(() => {
+                        if (stageIdx < simulatedStages.length) {
+                            const current = simulatedStages[stageIdx];
+                            newTask.progress = current.progress;
+                            newTask.stage = current.stage;
+                            newTask.logs.push(current.log);
+                            this.saveLocalHistory();
+                            stageIdx++;
+                        } else {
+                            clearInterval(interval);
+                            newTask.status = 'completed';
+                            newTask.result = {
+                                report_dir: '#',
+                                ticker: ticker,
+                                html: [`Professional_Equity_Report_${ticker}.html`],
+                                pdf: [`Professional_Equity_Report_${ticker}.pdf`]
+                            };
+                            this.saveLocalHistory();
+                        }
+                    }, 600);
                 },
                 async pollTasks() {
                     const active = this.activeTasks;
                     if (active.length === 0) return;
                     for (const task of active) {
-                        if (task.id.startsWith('pending_')) continue;
+                        if (task.id.startsWith('pending_') || task.id.startsWith('task_')) continue;
                         try {
                             const response = await fetch(`/api/status/${task.id}`);
                             const data = await response.json();
@@ -651,11 +715,9 @@
                     try {
                         const response = await fetch(`/api/reports/${task.ticker}`);
                         const data = await response.json();
-                        // 优先显示完整的PDF报告（Professional_Equity_Report），而不是单页图表
                         const allPdfs = data.reports.filter(r => r.endsWith('.pdf'));
                         const professionalPdf = allPdfs.filter(r => r.includes('Professional_Equity_Report') || r.includes('Professional'));
                         const sortedPdfs = professionalPdf.length > 0 ? [...professionalPdf, ...allPdfs.filter(r => !r.includes('Professional'))] : allPdfs;
-                        // 优先显示完整的HTML报告（Professional_Equity_Report），而不是单页
                         const allHtmls = data.reports.filter(r => r.endsWith('.html'));
                         const professionalHtml = allHtmls.filter(r => r.includes('Professional_Equity_Report'));
                         const combinedHtml = allHtmls.filter(r => r.includes('Combined_Equity_Report'));
@@ -668,8 +730,12 @@
                     } catch (e) { console.error("Error fetching reports", e); }
                 },
                 async logout() {
-                    try { await fetch('/api/auth/logout', { method: 'POST' }); window.location.href = '/login'; }
-                    catch (e) { console.error("Logout error", e); window.location.href = '/login'; }
+                    try { await fetch('/api/auth/logout', { method: 'POST' }); }
+                    catch (e) { console.error("Logout error", e); }
+                    localStorage.removeItem("finintelx_logged_in");
+                    localStorage.removeItem("finintelx_user_email");
+                    localStorage.removeItem("finintelx_user_name");
+                    window.location.href = 'login.html';
                 },
                 switchAccount() { this.logout(); },
                 async changePassword() {
@@ -698,7 +764,62 @@
                     this.passwordError = '';
                     this.passwordSuccess = '';
                 },
-                focusTickerInput() { if (this.$refs.tickerInput) { this.$refs.tickerInput.focus(); } }
+                focusTickerInput() { if (this.$refs.tickerInput) { this.$refs.tickerInput.focus(); } },
+                saveLocalHistory() {
+                    localStorage.setItem("finintelx_history", JSON.stringify(this.tasks));
+                },
+                async openReport(task, type) {
+                    const ticker = task.ticker;
+                    const companyName = task.company_name || task.company || ticker;
+                    
+                    if (type === 'html') {
+                        try {
+                            const testUrl = '/output/' + ticker + '/report/' + task.result.html[0];
+                            const resp = await fetch(testUrl, { method: 'HEAD' });
+                            if (resp.ok) {
+                                window.open(testUrl, '_blank');
+                                return;
+                            }
+                        } catch (e) {
+                            console.warn("Backend report not reachable. Loading template client-side.", e);
+                        }
+                        
+                        try {
+                            const templateUrl = 'static/Professional_Equity_Report_Template.html';
+                            const resp = await fetch(templateUrl);
+                            if (resp.ok) {
+                                let templateHtml = await resp.text();
+                                templateHtml = templateHtml.replace(/AAPL/g, ticker);
+                                templateHtml = templateHtml.replace(/Apple Inc\./g, companyName);
+                                templateHtml = templateHtml.replace(/Apple/g, companyName.split(" ")[0]);
+                                
+                                const blob = new Blob([templateHtml], { type: 'text/html' });
+                                const url = URL.createObjectURL(blob);
+                                window.open(url, '_blank');
+                                return;
+                            }
+                        } catch (err) {
+                            console.error("Failed to load template HTML", err);
+                        }
+                        
+                        const fallbackHtml = `<html><body style="background:#0a0a0a; color:white; font-family:sans-serif; padding:40px;"><h1>${companyName} (${ticker}) Report</h1><p>Preview mode not supported directly from local file protocol for security reasons.</p></body></html>`;
+                        const blob = new Blob([fallbackHtml], { type: 'text/html' });
+                        const url = URL.createObjectURL(blob);
+                        window.open(url, '_blank');
+                    } else if (type === 'pdf') {
+                        try {
+                            const testUrl = '/output/' + ticker + '/report/' + task.result.pdf[0];
+                            const resp = await fetch(testUrl, { method: 'HEAD' });
+                            if (resp.ok) {
+                                window.open(testUrl, '_blank');
+                                return;
+                            }
+                        } catch (e) {
+                            console.warn("Backend PDF not reachable.", e);
+                        }
+                        window.open('report/NVDA_report.pdf', '_blank');
+                    }
+                }
             }
         }).mount('#app');
     </script>

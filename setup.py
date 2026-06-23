@@ -9,17 +9,17 @@ except:
     REQUIRES = list()
 
 setup(
-    name="FinRobot",
+    name="FinIntelX",
     version="0.1.5",
     include_package_data=True,
-    author="AI4Finance Foundation",
-    author_email="contact@ai4finance.org",
-    url="https://github.com/AI4Finance-Foundation/FinRobot",
+    author="FinIntelX Team",
+    author_email="contact@finintelx.org",
+    url="https://github.com/finintelx/FinIntelX",
     license="MIT",
     packages=find_packages(),
     install_requires=REQUIRES,
-    description="FinRobot: An Open-Source AI Agent Platform for Financial Applications using LLMs",
-    long_description="""FinRobot""",
+    description="FinIntelX: An Open-Source AI Agent Platform for Financial Applications using LLMs",
+    long_description="""FinIntelX""",
     classifiers=[
         # Trove classifiers
         # Full list: https://pypi.python.org/pypi?%3Aaction=list_classifiers

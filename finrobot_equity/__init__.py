@@ -1,5 +1,5 @@
 """
-FinRobot Equity Research Module
+FinIntelX Equity Research Module
 
 This module provides comprehensive equity research analysis capabilities,
 including financial data processing, analysis, and report generation.
@@ -16,8 +16,8 @@ Usage:
 """
 
 __version__ = "0.1.0"
-__author__ = "AI4Finance Foundation"
-__description__ = "Equity Research Analysis Module for FinRobot"
+__author__ = "FinIntelX Team"
+__description__ = "Equity Research Analysis Module for FinIntelX"
 
 try:
     from finrobot_equity.core.src.generate_financial_analysis import main as generate_analysis

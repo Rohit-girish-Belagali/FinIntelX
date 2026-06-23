@@ -499,7 +499,7 @@ HTML_PROFESSIONAL_TEMPLATE = """
         <!-- Disclaimer -->
         <section class="mt-12" id="disclaimer" style="background: #f8fafc; margin-left: -1.5rem; margin-right: -1.5rem; padding: 1.5rem; border-radius: 0.75rem;">
             <div class="flex items-center gap-2 mb-2">
-                <span style="background: linear-gradient(90deg, #6366f1, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 600; font-size: 0.75rem;">Powered by FinRobot AI</span>
+                <span style="background: linear-gradient(90deg, #6366f1, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 600; font-size: 0.75rem;">Powered by FinIntelX</span>
                 <span style="color: #cbd5e1;">|</span>
                 <span style="color: #94a3b8; font-size: 0.7rem;">{research_source}</span>
             </div>
@@ -1051,7 +1051,7 @@ def render_professional_html_report(data: dict) -> str:
         'credit_cashflow_table_html': data.get('credit_cashflow_table_html', '<p class="body-text" style="color:#94a3b8; font-style:italic;">Credit & cashflow metrics not available.</p>'),
         'disclaimer_text': data.get('disclaimer_text', 'This report is for informational purposes only and does not constitute investment advice.'),
         'data_source_text': data.get('data_source_text', 'Company Filings, FMP API'),
-        'research_source': data.get('research_source', 'AI4Finance FinRobot'),
+        'research_source': data.get('research_source', 'FinIntelX'),
         'report_generated_time': datetime.now().strftime('%Y-%m-%d %H:%M'),
     }
 

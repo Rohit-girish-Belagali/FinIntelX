@@ -1,5 +1,5 @@
 """
-SQLAlchemy ORM models for FinRobot database
+SQLAlchemy ORM models for FinIntelX database
 """
 from datetime import datetime
 from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey, Text

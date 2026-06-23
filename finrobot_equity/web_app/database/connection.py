@@ -17,7 +17,7 @@ else:
     # Local SQLite
     DB_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
     os.makedirs(DB_DIR, exist_ok=True)
-    DATABASE_PATH = os.path.join(DB_DIR, "finrobot.db")
+    DATABASE_PATH = os.path.join(DB_DIR, "finintelx.db")
     DATABASE_URL = f"sqlite:///{DATABASE_PATH}"
     engine = create_engine(
         DATABASE_URL,

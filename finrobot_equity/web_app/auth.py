@@ -84,19 +84,33 @@ def delete_user_session(session_id: str) -> bool:
 
 
 def authenticate_user(email: str, password: str) -> Optional[User]:
-    """Authenticate user with email and password"""
+    """Authenticate user with email and password (hardcoded credentials)"""
+    hardcoded_users = {
+        "rohit.belagali@agforge.com": ("Password!@01", "Rohit Belagali"),
+        "adhar.raj@agforge.com": ("Password!@01", "Adhar Raj"),
+        "rohitgirishbelagali@gmail.com": ("Password!@01", "Rohit Girish Belagali")
+    }
+    
+    email_lower = email.strip().lower()
+    if email_lower not in hardcoded_users:
+        return None
+        
+    expected_password, name = hardcoded_users[email_lower]
+    if password != expected_password:
+        return None
+        
     db = SessionLocal()
     try:
-        user = crud.get_user_by_email(db, email)
+        user = crud.get_user_by_email(db, email_lower)
         if not user:
-            return None
-        
-        if not user.password_hash:
-            return None  # OAuth user, can't login with password
-        
-        if not crud.verify_password(password, user.password_hash):
-            return None
-        
+            # Auto-create the user in db if it doesn't exist
+            user = crud.create_user(
+                db=db,
+                email=email_lower,
+                password=password,
+                name=name,
+                provider="local"
+            )
         return user
     finally:
         db.close()
@@ -179,8 +193,8 @@ def init_default_admin():
     """Initialize default admin user if no users exist.
     
     Admin credentials can be configured via environment variables:
-        FINROBOT_ADMIN_EMAIL (default: admin@finrobot.com)
-        FINROBOT_ADMIN_PASSWORD (default: randomly generated)
+        FININTELX_ADMIN_EMAIL (default: admin@finintelx.com)
+        FININTELX_ADMIN_PASSWORD (default: randomly generated)
     
     IMPORTANT: Change the default admin password immediately after first login.
     """
@@ -189,8 +203,8 @@ def init_default_admin():
     try:
         stats = crud.get_user_stats(db)
         if stats["total_users"] == 0:
-            admin_email = os.getenv("FINROBOT_ADMIN_EMAIL", "admin@finrobot.com")
-            admin_password = os.getenv("FINROBOT_ADMIN_PASSWORD", secrets.token_urlsafe(12))
+            admin_email = os.getenv("FININTELX_ADMIN_EMAIL", "rohit.belagali@agforge.com")
+            admin_password = os.getenv("FININTELX_ADMIN_PASSWORD", "Password!@01")
             crud.create_user(
                 db=db,
                 email=admin_email,
@@ -199,7 +213,7 @@ def init_default_admin():
                 provider="local"
             )
             print(f"✅ Created default admin user: {admin_email}")
-            if not os.getenv("FINROBOT_ADMIN_PASSWORD"):
+            if not os.getenv("FININTELX_ADMIN_PASSWORD"):
                 print(f"⚠️  Generated admin password: {admin_password}")
                 print("⚠️  Please change this password immediately after first login!")
     finally:

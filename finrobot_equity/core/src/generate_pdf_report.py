@@ -436,9 +436,9 @@ def main():
     parser.add_argument("--skip-market-fetch", action="store_true",
                        help="Skip fetching market data from API")
     parser.add_argument("--analyst-names", type=str, nargs="*", 
-                       default=["AI4Finance FinRobot"])
+                       default=["FinIntelX"])
     parser.add_argument("--research-source", type=str, 
-                       default="AI4Finance Foundation FinRobot Equity Research")
+                       default="FinIntelX Equity Research")
     
     args = parser.parse_args()
     
@@ -673,7 +673,7 @@ def main():
         
         # 元数据
         'closing_price_date': datetime.now().strftime("%B %d, %Y"),
-        'data_source_text': 'FMP, Company Filings, AI4Finance Estimates',
+        'data_source_text': 'FMP, Company Filings, FinIntelX Estimates',
         'research_source': args.research_source,
         'analyst_names': args.analyst_names,
         'disclaimer_text': (

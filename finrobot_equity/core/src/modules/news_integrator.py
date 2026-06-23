@@ -509,7 +509,55 @@ def get_enhanced_company_news(ticker: str, api_key: str, days_back: int = 5,
         }
         
     except Exception as e:
-        logger.error(f"Error fetching enhanced news: {e}")
+        logger.error(f"Error fetching FMP enhanced news ({e}), trying yfinance fallback...")
+        try:
+            import yfinance as yf
+            yf_ticker = yf.Ticker(ticker)
+            yf_news = yf_ticker.news
+            if yf_news:
+                raw_news = []
+                for item in yf_news:
+                    content = item.get("content", {})
+                    url_info = content.get("clickThroughUrl") or {}
+                    provider_info = content.get("provider") or {}
+                    raw_news.append({
+                        'symbol': ticker,
+                        'title': content.get('title', ''),
+                        'publishedDate': content.get('pubDate', ''),
+                        'text': content.get('summary', '') or content.get('description', ''),
+                        'site': provider_info.get('displayName', ''),
+                        'url': url_info.get('url', '')
+                    })
+                
+                # Use NewsIntegrator to process the fallback news
+                integrator = NewsIntegrator(ticker, api_key)
+                integrator.set_news_data(raw_news)
+                integrator.process_news(days_back)
+                
+                # Generate results
+                categorized = integrator.get_news_by_category()
+                summary = integrator.generate_news_summary()
+                sentiments = [a.sentiment for a in integrator.articles]
+                
+                return {
+                    'ticker': ticker,
+                    'articles': integrator.get_news_for_catalyst_analysis(),
+                    'summary': summary,
+                    'categorized': {k: [{'title': a.title, 'sentiment': a.sentiment, 
+                                        'importance': a.importance} for a in v] 
+                                  for k, v in categorized.items()},
+                    'sentiment_overview': {
+                        'positive': sentiments.count('positive'),
+                        'negative': sentiments.count('negative'),
+                        'neutral': sentiments.count('neutral')
+                    },
+                    'high_impact': [{'title': a.title, 'category': a.category, 
+                                   'sentiment': a.sentiment} 
+                                  for a in integrator.get_high_impact_news()]
+                }
+        except Exception as yf_err:
+            logger.error(f"Error fetching fallback yfinance news: {yf_err}")
+            
         return {
             'ticker': ticker,
             'articles': [],

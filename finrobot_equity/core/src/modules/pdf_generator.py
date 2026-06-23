@@ -833,7 +833,7 @@ class EquityReportPDF:
         canvas_obj.drawString(
             PageSpec.MARGIN_LEFT, 
             12 * mm,
-            f"Source: {self.data.get('research_source', 'AI4Finance FinRobot')}"
+            f"Source: {self.data.get('research_source', 'FinIntelX')}"
         )
         
         # 右侧：页码
@@ -928,7 +928,7 @@ if __name__ == "__main__":
         'competitor_analysis': 'Apple competes primarily with Samsung and Google...',
         'major_takeaways': 'Revenue Growth: Strong 6.4% growth in 2025\nMargin Expansion: Contribution margin improving',
         'disclaimer_text': 'This report is for informational purposes only...',
-        'research_source': 'AI4Finance FinRobot',
+        'research_source': 'FinIntelX',
     }
     
     generate_equity_report_pdf('test_report.pdf', test_data)

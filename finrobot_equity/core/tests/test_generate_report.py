@@ -272,7 +272,7 @@ Near-term risks from China exposure and regulatory headwinds''',
         
         # 元数据
         'data_source_text': 'Company Filings, Mock Data for Testing',
-        'research_source': 'AI4Finance FinRobot Test',
+        'research_source': 'FinIntelX Test',
         'analyst_names': ['Test Analyst'],
         'disclaimer_text': 'This is a test report generated with mock data for demonstration purposes only. Not for investment decisions.',
     }

@@ -330,8 +330,8 @@ def main():
     parser.add_argument("--html-report-prefix", type=str, default="Equity_Report", help="Prefix for output HTML filenames.")
     parser.add_argument("--analyst-names", type=str, nargs="*", default=["Analyst Name"], help="List of analyst names.")
     parser.add_argument("--analyst-emails", type=str, nargs="*", default=["analyst@example.com"], help="List of analyst emails.")
-    parser.add_argument("--research-source", type=str, default="AI4Finance Foundation FinRobot Equity Research", help="Source of the research.")
-    parser.add_argument("--data-source-text", type=str, default="Company Filings, FMP, Yahoo Finance, AI4Finance Estimates", help="Text for data sources.")
+    parser.add_argument("--research-source", type=str, default="FinIntelX Equity Research", help="Source of the research.")
+    parser.add_argument("--data-source-text", type=str, default="Company Filings, FMP, Yahoo Finance, FinIntelX Estimates", help="Text for data sources.")
     parser.add_argument("--disclaimer-text", type=str, default="Disclaimer: The information contained in this document is intended only for use by the person to whom it has been delivered and should not be disseminated or distributed to third parties without our prior written consent. Our firm accepts no liability whatsoever with respect to the use of this document or its contents.", help="Disclaimer text.")
     parser.add_argument("--closing-price-date", type=str, default=datetime.now(EASTERN_TZ).strftime("%B %d, %Y"), help="Date of the share price (Eastern Time).")
 

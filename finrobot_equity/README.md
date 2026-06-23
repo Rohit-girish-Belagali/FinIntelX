@@ -1,4 +1,4 @@
-# FinRobot Equity Research Module
+# FinIntelX Equity Research Module
 
 AI-powered equity research report generator. Fetches financial data, runs LLM-based analysis, and produces professional multi-page HTML/PDF reports — all with a single command.
 
@@ -35,15 +35,15 @@ finrobot_equity/
 │   │       ├── pdf_generator.py             #   PDF report generation
 │   │       ├── professional_pdf_report.py   #   Professional PDF templates
 │   │       └── equity_agents/               #   AI agents for report sections
-│   │           ├── agent_manager.py         #     Agent orchestration
-│   │           ├── tagline_agent.py         #     Executive tagline
-│   │           ├── company_overview_agent.py#     Company overview
-│   │           ├── investment_overview_agent.py  # Investment thesis
-│   │           ├── valuation_overview_agent.py   # Valuation analysis
-│   │           ├── risks_agent.py                # Risk assessment
-│   │           ├── competitor_analysis_agent.py  # Competitive landscape
-│   │           ├── major_takeaways_agent.py      # Key takeaways
-│   │           └── news_summary_agent.py         # News summarization
+│   │       │   ├── agent_manager.py         #     Agent orchestration
+│   │       │   ├── tagline_agent.py         #     Executive tagline
+│   │       │   ├── company_overview_agent.py#     Company overview
+│   │       │   ├── investment_overview_agent.py  # Investment thesis
+│   │       │   ├── valuation_overview_agent.py   # Valuation analysis
+│   │       │   ├── risks_agent.py                # Risk assessment
+│   │       │   ├── competitor_analysis_agent.py  # Competitive landscape
+│   │       │   ├── major_takeaways_agent.py      # Key takeaways
+│   │       │   └── news_summary_agent.py         # News summarization
 │   └── tests/                         # Unit tests
 │       ├── test_generate_report.py
 │       └── test_modules.py
@@ -152,12 +152,12 @@ python finrobot_equity/core/src/create_equity_report.py \
 
 | Variable | Default | Description |
 |:---|:---|:---|
-| `GITHUB_CLIENT_ID` | — | GitHub OAuth client ID |
-| `GITHUB_CLIENT_SECRET` | — | GitHub OAuth client secret |
-| `FINROBOT_ADMIN_EMAIL` | `admin@finrobot.com` | Initial admin email |
-| `FINROBOT_ADMIN_PASSWORD` | (random) | Initial admin password |
-| `WEB_HOST` | `127.0.0.1` | Server bind address |
-| `WEB_PORT` | `8001` | Server port |
+| GITHUB_CLIENT_ID | — | GitHub OAuth client ID |
+| GITHUB_CLIENT_SECRET | — | GitHub OAuth client secret |
+| FININTELX_ADMIN_EMAIL | rohit.belagali@agforge.com | Initial admin email |
+| FININTELX_ADMIN_PASSWORD | Password!@01 | Initial admin password |
+| WEB_HOST | 127.0.0.1 | Server bind address |
+| WEB_PORT | 8001 | Server port |
 
 ## API Dependencies
 

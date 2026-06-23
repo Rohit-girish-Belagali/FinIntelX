@@ -291,7 +291,7 @@ HTML_TEMPLATE_PAGE_1 = """
    <footer class="pt-4" style="border-top: 1px solid #002855;">
     <p style="font-size: 9px; color: #555555; line-height: 1.4;">{disclaimer_text}</p>
     <div class="text-right">
-     <img alt="Research Group logo" class="inline-block" height="60" src="https://github.com/AI4Finance-Foundation/FinGPT/assets/31713746/e0371951-1ce1-488e-aa25-0992dafcc139" width="100" style="margin-top: -10px;"/>
+     <span style="font-size: 10px; font-weight: 600; color: #002855;">FinIntelX Research</span>
     </div>
    </footer>
   </div>
@@ -365,7 +365,7 @@ HTML_TEMPLATE_PAGE_2_FINANCIAL_SUMMARY = """
     <footer class="pt-4" style="border-top: 1px solid #002855;">
       <p style="font-size: 9px; color: #555555; line-height: 1.4;">{disclaimer_text}</p>
       <div class="text-right">
-        <img alt="Research Group logo" class="inline-block" height="60" src="https://github.com/AI4Finance-Foundation/FinGPT/assets/31713746/e0371951-1ce1-488e-aa25-0992dafcc139" width="100" style="margin-top: -10px;"/>
+        <span style="font-size: 10px; font-weight: 600; color: #002855;">FinIntelX Research</span>
       </div>
     </footer>
   </div>
@@ -428,7 +428,7 @@ HTML_TEMPLATE_PAGE_3_PEER_COMPARISON = """
     <footer class="pt-4" style="border-top: 1px solid #002855;">
       <p style="font-size: 9px; color: #555555; line-height: 1.4;">{disclaimer_text}</p>
       <div class="text-right">
-        <img alt="Research Group logo" class="inline-block" height="60" src="https://github.com/AI4Finance-Foundation/FinGPT/assets/31713746/e0371951-1ce1-488e-aa25-0992dafcc139" width="100" style="margin-top: -10px;"/>
+        <span style="font-size: 10px; font-weight: 600; color: #002855;">FinIntelX Research</span>
       </div>
     </footer>
   </div>
@@ -545,7 +545,7 @@ HTML_TEMPLATE_PAGE_4_SENSITIVITY_CATALYST = """
     <footer class="pt-4 mt-auto" style="border-top: 1px solid #002855;">
       <p style="font-size: 9px; color: #555555; line-height: 1.4;">{disclaimer_text}</p>
       <div class="text-right">
-        <img alt="Research Group logo" class="inline-block" height="60" src="https://github.com/AI4Finance-Foundation/FinGPT/assets/31713746/e0371951-1ce1-488e-aa25-0992dafcc139" width="100"/>
+        <span style="font-size: 10px; font-weight: 600; color: #002855;">FinIntelX Research</span>
       </div>
     </footer>
   </div>
@@ -592,7 +592,7 @@ HTML_TEMPLATE_PAGE_5_NEWS_CHARTS = """
     <footer class="pt-4 mt-auto" style="border-top: 1px solid #002855;">
       <p style="font-size: 9px; color: #555555; line-height: 1.4;">{disclaimer_text}</p>
       <div class="text-right">
-        <img alt="Research Group logo" class="inline-block" height="60" src="https://github.com/AI4Finance-Foundation/FinGPT/assets/31713746/e0371951-1ce1-488e-aa25-0992dafcc139" width="100"/>
+        <span style="font-size: 10px; font-weight: 600; color: #002855;">FinIntelX Research</span>
       </div>
     </footer>
   </div>
@@ -1248,7 +1248,7 @@ HTML_TEMPLATE_COMBINED = """
     <footer class="pt-4" style="border-top: 1px solid #002855;">
       <p style="font-size: 9px; color: #555555; line-height: 1.4;">{disclaimer_text}</p>
       <div class="text-right">
-        <img alt="AI4Finance Logo" class="inline-block" height="60" src="https://github.com/AI4Finance-Foundation/FinGPT/assets/31713746/e0371951-1ce1-488e-aa25-0992dafcc139" width="100"/>
+        <span style="font-size: 10px; font-weight: 600; color: #002855;">FinIntelX Research</span>
       </div>
     </footer>
   </div>

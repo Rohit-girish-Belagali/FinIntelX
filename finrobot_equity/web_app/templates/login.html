@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - FinRobot Pro</title>
+    <title>Login - FinIntelX Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.54/build/spline-viewer.js"></script>
@@ -224,7 +224,7 @@
             <div class="flex items-center gap-3">
                 <img src="/static/logo.png" alt="Logo" class="w-12 h-12 object-contain">
                 <span class="text-lg font-semibold tracking-tight letter-pullup">
-                    <span style="animation-delay: 0.00s">F</span><span style="animation-delay: 0.05s">i</span><span style="animation-delay: 0.10s">n</span><span style="animation-delay: 0.15s">R</span><span style="animation-delay: 0.20s">o</span><span style="animation-delay: 0.25s">b</span><span style="animation-delay: 0.30s">o</span><span style="animation-delay: 0.35s">t</span><span style="animation-delay: 0.45s; margin-left: 0.25rem;" class="text-blue-400 font-normal">P</span><span style="animation-delay: 0.50s" class="text-blue-400 font-normal">r</span><span style="animation-delay: 0.55s" class="text-blue-400 font-normal">o</span>
+                    <span style="animation-delay: 0.00s">F</span><span style="animation-delay: 0.05s">i</span><span style="animation-delay: 0.10s">n</span><span style="animation-delay: 0.15s">I</span><span style="animation-delay: 0.20s">n</span><span style="animation-delay: 0.25s">t</span><span style="animation-delay: 0.30s">e</span><span style="animation-delay: 0.35s">l</span><span style="animation-delay: 0.45s" class="text-blue-400 font-normal">X</span>
                 </span>
             </div>
             <div class="text-sm font-bold text-white">AI-Powered Equity Research</div>
@@ -253,7 +253,7 @@
                 <div class="lg:hidden p-6 border-b border-slate-200">
                     <div class="flex items-center gap-3">
                         <img src="/static/logo.png" alt="Logo" class="w-8 h-8 object-contain">
-                        <span class="text-lg font-semibold text-slate-800">FinRobot <span class="text-blue-500 font-normal">Pro</span></span>
+                        <span class="text-lg font-semibold text-slate-800">FinIntelX <span class="text-blue-500 font-normal">Pro</span></span>
                     </div>
                 </div>
 
@@ -301,51 +301,13 @@
                                 </button>
                             </form>
 
-                            <p class="text-center text-sm text-slate-400 mt-6">Don't have an account?<a href="#" v-on:click.prevent="isRegister = true" class="text-white hover:text-blue-400 ml-1">Sign up</a></p>
-                        </div>
-
-                        <!-- Register Form -->
-                        <div v-else>
-                            <div class="text-left mb-6">
-                                <h2 class="text-2xl font-bold tracking-tight text-white">Create Account</h2>
-                                <p class="mt-1 text-sm text-slate-400">Start generating professional equity research reports</p>
+                            <div class="mt-6 p-4 bg-white/5 border border-white/10 rounded-lg text-xs text-slate-400 space-y-1.5">
+                                <p class="font-semibold text-slate-300">Authorized Accounts:</p>
+                                <p class="flex justify-between"><span>1. rohit.belagali@agforge.com</span></p>
+                                <p class="flex justify-between"><span>2. adhar.raj@agforge.com</span></p>
+                                <p class="flex justify-between"><span>3. rohitgirishbelagali@gmail.com</span></p>
+                                <p class="text-slate-500 pt-1">Password: <span class="font-mono text-blue-300">Password!@01</span></p>
                             </div>
-
-                            <form class="space-y-4" v-on:submit.prevent="handleRegister">
-                                <!-- Error Alert for Register Form - Compact Style -->
-                                <div v-if="error" class="error-alert-small error-shake rounded-md px-2.5 py-1.5 text-red-400 text-xs flex items-center gap-1.5 mb-3">
-                                    <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293z" clip-rule="evenodd"/>
-                                    </svg>
-                                    <span>{{ error }}</span>
-                                </div>
-                                <div class="space-y-3">
-                                    <div>
-                                        <label class="block text-xs font-medium text-slate-400 mb-1">Full Name</label>
-                                        <div class="halo-input-wrapper">
-                                            <input type="text" required v-model="regName" v-bind:class="['halo-input block w-full rounded-lg px-3 py-2.5 text-white placeholder-slate-500 text-sm', { 'input-error': hasRegError }]" placeholder="Enter your name">
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-medium text-slate-400 mb-1">Email Address</label>
-                                        <div class="halo-input-wrapper">
-                                            <input type="email" autocomplete="email" required v-model="regEmail" v-bind:class="['halo-input block w-full rounded-lg px-3 py-2.5 text-white placeholder-slate-500 text-sm', { 'input-error': hasRegError }]" placeholder="name@example.com">
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-medium text-slate-400 mb-1">Password</label>
-                                        <div class="halo-input-wrapper">
-                                            <input type="password" required minlength="6" v-model="regPassword" v-bind:class="['halo-input block w-full rounded-lg px-3 py-2.5 text-white placeholder-slate-500 text-sm', { 'input-error': hasRegError }]" placeholder="At least 6 characters">
-                                        </div>
-                                    </div>
-                                </div>
-                                <button type="submit" v-bind:disabled="loading" class="shimmer-button w-full flex justify-center items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-all">
-                                    <span v-if="loading">Creating...</span>
-                                    <span v-else>Create Account</span>
-                                </button>
-                            </form>
-
-                            <p class="text-center text-sm text-slate-400 mt-6">Already have an account?<a href="#" v-on:click.prevent="isRegister = false" class="text-white hover:text-blue-400 ml-1">Sign in</a></p>
                         </div>
 
 
@@ -397,33 +359,51 @@
                     this.loading = true; 
                     this.error = '';
                     this.hasError = false;
-                    try {
-                        const res = await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: this.email, password: this.password, remember: this.remember }) });
-                        const data = await res.json();
-                        if (!res.ok) throw new Error('Invalid email or password');
-                        window.location.href = '/';
-                    } catch (e) { 
-                        this.error = e.message;
+                    
+                    const authorized_users = {
+                        "rohit.belagali@agforge.com": { pass: "Password!@01", name: "Rohit Belagali" },
+                        "adhar.raj@agforge.com": { pass: "Password!@01", name: "Adhar Raj" },
+                        "rohitgirishbelagali@gmail.com": { pass: "Password!@01", name: "Rohit Girish Belagali" }
+                    };
+                    
+                    const inputEmail = this.email.trim().toLowerCase();
+                    const inputPassword = this.password;
+                    
+                    if (authorized_users[inputEmail] && authorized_users[inputEmail].pass === inputPassword) {
+                        const userName = authorized_users[inputEmail].name;
+                        try {
+                            const res = await fetch('/api/auth/login', { 
+                                method: 'POST', 
+                                headers: { 'Content-Type': 'application/json' }, 
+                                body: JSON.stringify({ email: this.email, password: this.password, remember: this.remember }) 
+                            });
+                            if (res.ok) {
+                                window.location.href = '/';
+                                return;
+                            }
+                        } catch (e) {
+                            console.warn("Backend auth unreachable. Falling back to frontend-only session.", e);
+                        }
+                        
+                        // Pure frontend localStorage fallback
+                        localStorage.setItem("finintelx_logged_in", "true");
+                        localStorage.setItem("finintelx_user_email", inputEmail);
+                        localStorage.setItem("finintelx_user_name", userName);
+                        
+                        const currentPath = window.location.pathname;
+                        if (currentPath.endsWith("login.html") || currentPath.endsWith("login")) {
+                            window.location.href = currentPath.replace("login.html", "index.html").replace("login", "index.html");
+                        } else {
+                            window.location.href = "index.html";
+                        }
+                    } else {
+                        this.error = 'Invalid email or password';
                         this.hasError = true;
-                    } finally { 
-                        this.loading = false; 
+                        this.loading = false;
                     }
                 },
-                async handleRegister() {
-                    this.loading = true; 
-                    this.error = '';
-                    this.hasRegError = false;
-                    try {
-                        const res = await fetch('/api/auth/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: this.regEmail, password: this.regPassword, name: this.regName }) });
-                        const data = await res.json();
-                        if (!res.ok) throw new Error(data.detail || 'Registration failed');
-                        window.location.href = '/';
-                    } catch (e) { 
-                        this.error = e.message;
-                        this.hasRegError = true;
-                    } finally { 
-                        this.loading = false; 
-                    }
+                handleRegister() {
+                    this.error = 'Registration is disabled. Please use an authorized account.';
                 }
             }
         }).mount('#app');

@@ -1,4 +1,4 @@
-# Database module for FinRobot Web App
+# Database module for FinIntelX Web App
 from .connection import get_db, init_db, engine
 from .models import User, Session, RequestLog, ReportRequest
 from .crud import (
