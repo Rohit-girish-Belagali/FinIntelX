@@ -1,21 +1,5 @@
 {
   "cleanUrls": true,
-  "builds": [
-    {
-      "src": "finrobot_equity/web_app/templates/*.html",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "finrobot_equity/web_app/static/**/*",
-      "use": "@vercel/static"
-    }
-  ],
-  "routes": [
-    { "src": "/static/(.*)", "dest": "/finrobot_equity/web_app/static/$1" },
-    { "src": "/login.html", "dest": "/finrobot_equity/web_app/templates/login.html" },
-    { "src": "/login", "dest": "/finrobot_equity/web_app/templates/login.html" },
-    { "src": "/parallel_dashboard.html", "dest": "/finrobot_equity/web_app/templates/parallel_dashboard.html" },
-    { "src": "/index.html", "dest": "/finrobot_equity/web_app/templates/index.html" },
-    { "src": "/(.*)", "dest": "/finrobot_equity/web_app/templates/index.html" }
-  ]
+  "buildCommand": "mkdir -p dist && cp -r finrobot_equity/web_app/templates/* dist/ && mkdir -p dist/static && cp -r finrobot_equity/web_app/static/* dist/static/ && mkdir -p dist/report && cp -r report/* dist/report/ && mkdir -p dist/output && cp -r output/* dist/output/",
+  "outputDirectory": "dist"
 }
