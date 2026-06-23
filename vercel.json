@@ -1,5 +1,15 @@
 {
   "cleanUrls": true,
+  "builds": [
+    {
+      "src": "finrobot_equity/web_app/templates/*.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "finrobot_equity/web_app/static/**/*",
+      "use": "@vercel/static"
+    }
+  ],
   "rewrites": [
     { "source": "/", "destination": "/finrobot_equity/web_app/templates/index.html" },
     { "source": "/index.html", "destination": "/finrobot_equity/web_app/templates/index.html" },
