@@ -1,0 +1,13 @@
+**/*.py
+requirements.txt
+requirements-equity.txt
+web_requirements.txt
+setup.py
+FinNLP/
+finrobot/
+finrobot_equity/core/
+finrobot_equity/logs/
+venv/
+.venv/
+.git/
+.gitignore
