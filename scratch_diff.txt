@@ -1,0 +1,1990 @@
+diff --git a/finrobot_equity/web_app/templates/index.html b/finrobot_equity/web_app/templates/index.html
+index 44fef0c..1ed57b7 100644
+--- a/finrobot_equity/web_app/templates/index.html
++++ b/finrobot_equity/web_app/templates/index.html
+@@ -9,60 +9,167 @@
+     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+     <style>
+-        body { font-family: 'Inter', sans-serif; }
+-        .log-container { font-family: 'Consolas', 'Monaco', monospace; font-size: 0.85rem; }
+-        ::-webkit-scrollbar { width: 6px; height: 6px; }
+-        ::-webkit-scrollbar-track { background: transparent; }
+-        ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.3); border-radius: 10px; }
+-        ::-webkit-scrollbar-thumb:hover { background: rgba(148, 163, 184, 0.5); }
+-        aside::-webkit-scrollbar { width: 4px; }
+-        aside::-webkit-scrollbar-track { background: transparent; }
+-        aside::-webkit-scrollbar-thumb { background: rgba(100, 116, 139, 0.4); border-radius: 10px; }
+-        aside .overflow-y-auto::-webkit-scrollbar { width: 4px; }
+-        aside .overflow-y-auto::-webkit-scrollbar-thumb { background: rgba(100, 116, 139, 0.4); border-radius: 10px; }
+-        aside, aside .overflow-y-auto { scrollbar-width: thin; scrollbar-color: rgba(100, 116, 139, 0.4) transparent; }
+-        aside>div:first-child, main>div, header, img { cursor: default; user-select: none; -webkit-user-select: none; }
+-        input, textarea { cursor: text; user-select: auto; -webkit-user-select: auto; }
+-        .halo-input-wrapper { position: relative; border-radius: 0.5rem; }
++        :root {
++            --bg-primary: #0a0a0a;
++            --bg-glass: rgba(10, 10, 10, 0.6);
++            --color-text: #e5e7eb;
++            --color-primary: #60a5fa;
++            --color-accent: #a78bfa;
++            --color-accent2: #f472b6;
++        }
++
++        body {
++            background: var(--bg-primary);
++            color: var(--color-text);
++            font-family: 'Inter', sans-serif;
++            overflow: hidden;
++        }
++
++        .glass {
++            background: var(--bg-glass);
++            backdrop-filter: blur(12px);
++            border: 1px solid rgba(255, 255, 255, 0.1);
++            border-radius: 0.75rem;
++        }
++
++        /* Scrollbars */
++        ::-webkit-scrollbar {
++            width: 6px;
++            height: 6px;
++        }
++
++        ::-webkit-scrollbar-track {
++            background: transparent;
++        }
++
++        ::-webkit-scrollbar-thumb {
++            background: rgba(148, 163, 184, 0.3);
++            border-radius: 10px;
++        }
++
++        ::-webkit-scrollbar-thumb:hover {
++            background: rgba(148, 163, 184, 0.5);
++        }
++
++        aside::-webkit-scrollbar,
++        aside .overflow-y-auto::-webkit-scrollbar {
++            width: 4px;
++        }
++
++        aside::-webkit-scrollbar-track,
++        aside .overflow-y-auto::-webkit-scrollbar-track {
++            background: transparent;
++        }
++
++        aside::-webkit-scrollbar-thumb,
++        aside .overflow-y-auto::-webkit-scrollbar-thumb {
++            background: rgba(100, 116, 139, 0.4);
++            border-radius: 10px;
++        }
++
++        aside,
++        aside .overflow-y-auto {
++            scrollbar-width: thin;
++            scrollbar-color: rgba(100, 116, 139, 0.4) transparent;
++        }
++
++        /* Disable selection on decorative elements */
++        aside>div:first-child,
++        main>div,
++        header,
++        img {
++            cursor: default;
++            user-select: none;
++            -webkit-user-select: none;
++        }
++
++        input,
++        textarea {
++            cursor: text;
++            user-select: auto;
++            -webkit-user-select: auto;
++        }
++
++        /* Halo input with animated gradient border */
++        .halo-input-wrapper {
++            position: relative;
++            border-radius: 0.5rem;
++        }
++
+         .halo-input-wrapper::before {
+-            content: ''; position: absolute; inset: -1px; border-radius: 0.5rem; padding: 1px;
+-            background: linear-gradient(90deg, #60a5fa, #a78bfa, #f9a8d4, #60a5fa);
+-            background-size: 300% 100%; animation: borderGradient 4s linear infinite;
++            content: '';
++            position: absolute;
++            inset: -1px;
++            border-radius: 0.5rem;
++            padding: 1px;
++            background: linear-gradient(90deg, var(--color-primary), var(--color-accent), var(--color-accent2), var(--color-primary));
++            background-size: 300% 100%;
++            animation: borderGradient 4s linear infinite;
+             -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+             mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+-            -webkit-mask-composite: xor; mask-composite: exclude;
+-            opacity: 0; transition: opacity 0.3s ease; pointer-events: none; z-index: 0;
++            -webkit-mask-composite: xor;
++            mask-composite: exclude;
++            opacity: 0;
++            transition: opacity 0.3s ease;
++            pointer-events: none;
++            z-index: 0;
++        }
++
++        .halo-input-wrapper:focus-within::before {
++            opacity: 0.6;
++        }
++
++        @keyframes borderGradient {
++            0% {
++                background-position: 0% 50%;
++            }
++
++            100% {
++                background-position: 300% 50%;
++            }
+         }
+-        .halo-input-wrapper:focus-within::before { opacity: 0.6; }
+-        @keyframes borderGradient { 0% { background-position: 0% 50%; } 100% { background-position: 300% 50%; } }
++
+         .halo-input {
+-            position: relative; z-index: 1; background: rgba(10, 10, 10, 0.95) !important;
++            position: relative;
++            z-index: 1;
++            background: rgba(10, 10, 10, 0.95) !important;
+             border: 1px solid rgba(255, 255, 255, 0.2);
+-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); color: #f8fafc !important;
++            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
++            color: #f8fafc !important;
++        }
++
++        .halo-input::placeholder {
++            color: #94a3b8;
++        }
++
++        .halo-input:hover {
++            border-color: rgba(96, 165, 250, 0.5);
++            background: var(--bg-glass) !important;
++        }
++
++        .halo-input:focus {
++            border-color: var(--color-primary);
++            background: var(--bg-glass) !important;
++            box-shadow: 0 0 0 1px var(--color-primary);
++            outline: none;
+         }
+-        .halo-input::placeholder { color: #94a3b8; }
+-        .halo-input:hover { border-color: rgba(96, 165, 250, 0.5); background: black !important; }
+-        .halo-input:focus { border-color: #3b82f6; background: black !important; box-shadow: 0 0 0 1px #3b82f6; outline: none; }
+-        .animate-gradient-x { background-size: 200% 200%; animation: gradientX 3s ease infinite; }
+-        @keyframes gradientX { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+-        .hero-text { background: linear-gradient(to right, #fff, #94a3b8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+-        .nav-scroll::-webkit-scrollbar { display: none; }
+-        .nav-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+-        /* GitHub Gradient Button */
++
++        /* Gradient button */
+         .gradient-btn {
+             position: relative;
+             display: inline-block;
+             padding: 2px;
+             border-radius: 0.5rem;
+-            background: linear-gradient(90deg, #60a5fa, #a78bfa, #f472b6, #60a5fa);
++            background: linear-gradient(90deg, var(--color-primary), var(--color-accent), var(--color-accent2), var(--color-primary));
+             background-size: 300% 100%;
+             animation: borderGradient 3s linear infinite;
+         }
++
+         .gradient-btn:hover {
+             background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899, #3b82f6);
+-            background-size: 300% 100%;
+             animation: borderGradient 2s linear infinite;
+         }
++
+         .gradient-btn-inner {
+             display: flex;
+             align-items: center;
+@@ -72,9 +179,26 @@
+             border-radius: 0.4rem;
+             transition: all 0.2s ease;
+         }
++
+         .gradient-btn:hover .gradient-btn-inner {
+             background: #1a1a1a;
+         }
++
++        .hero-text {
++            background: linear-gradient(to right, #fff, #94a3b8);
++            -webkit-background-clip: text;
++            -webkit-text-fill-color: transparent;
++            background-clip: text;
++        }
++
++        .nav-scroll {
++            -ms-overflow-style: none;
++            scrollbar-width: none;
++        }
++
++        .nav-scroll::-webkit-scrollbar {
++            display: none;
++        }
+     </style>
+ </head>
+ <script>
+@@ -85,37 +209,50 @@
+     };
+ </script>
+ {% raw %}
++
+ <body class="bg-black text-white h-screen flex overflow-hidden" id="app">
+ 
+     <!-- Change Password Modal -->
+-    <div v-if="showChangePassword" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50" @click.self="closePasswordModal">
++    <div v-if="showChangePassword" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50"
++        @click.self="closePasswordModal">
+         <div class="bg-[#0a0a0a] border border-white/10 rounded-xl w-full max-w-md p-6 shadow-2xl">
+             <div class="flex items-center justify-between mb-6">
+                 <h3 class="text-lg font-semibold text-white">Change Password</h3>
+                 <button @click="closePasswordModal" class="text-slate-400 hover:text-white">
+                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
++                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
++                        </path>
+                     </svg>
+                 </button>
+             </div>
+-            <div v-if="passwordError" class="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">{{ passwordError }}</div>
+-            <div v-if="passwordSuccess" class="mb-4 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-emerald-400 text-sm">{{ passwordSuccess }}</div>
++            <div v-if="passwordError"
++                class="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">{{ passwordError
++                }}</div>
++            <div v-if="passwordSuccess"
++                class="mb-4 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-emerald-400 text-sm">{{
++                passwordSuccess }}</div>
+             <form @submit.prevent="changePassword" class="space-y-4">
+                 <div>
+                     <label class="block text-xs font-medium text-slate-400 mb-1">Current Password</label>
+-                    <input type="password" v-model="passwordForm.currentPassword" required class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:border-white/30 focus:outline-none">
++                    <input type="password" v-model="passwordForm.currentPassword" required
++                        class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:border-white/30 focus:outline-none">
+                 </div>
+                 <div>
+                     <label class="block text-xs font-medium text-slate-400 mb-1">New Password</label>
+-                    <input type="password" v-model="passwordForm.newPassword" required minlength="6" class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:border-white/30 focus:outline-none">
++                    <input type="password" v-model="passwordForm.newPassword" required minlength="6"
++                        class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:border-white/30 focus:outline-none">
+                 </div>
+                 <div>
+                     <label class="block text-xs font-medium text-slate-400 mb-1">Confirm New Password</label>
+-                    <input type="password" v-model="passwordForm.confirmPassword" required minlength="6" class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:border-white/30 focus:outline-none">
++                    <input type="password" v-model="passwordForm.confirmPassword" required minlength="6"
++                        class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2.5 text-white text-sm focus:border-white/30 focus:outline-none">
+                 </div>
+                 <div class="flex gap-3 pt-2">
+-                    <button type="button" @click="closePasswordModal" class="flex-1 px-4 py-2.5 border border-white/10 rounded-lg text-slate-300 hover:bg-white/5 transition-colors text-sm">Cancel</button>
+-                    <button type="submit" :disabled="passwordLoading" class="flex-1 px-4 py-2.5 bg-white text-black rounded-lg font-medium hover:bg-slate-200 transition-colors text-sm disabled:opacity-50">{{ passwordLoading ? 'Saving...' : 'Save' }}</button>
++                    <button type="button" @click="closePasswordModal"
++                        class="flex-1 px-4 py-2.5 border border-white/10 rounded-lg text-slate-300 hover:bg-white/5 transition-colors text-sm">Cancel</button>
++                    <button type="submit" :disabled="passwordLoading"
++                        class="flex-1 px-4 py-2.5 bg-white text-black rounded-lg font-medium hover:bg-slate-200 transition-colors text-sm disabled:opacity-50">{{
++                        passwordLoading ? 'Saving...' : 'Save' }}</button>
+                 </div>
+             </form>
+         </div>
+@@ -126,31 +263,50 @@
+         <div class="p-3.5 border-b border-white/5">
+             <div class="flex items-center justify-between">
+                 <div class="flex items-center gap-3">
+-                    <img src="/static/logo_transparent_background.png" alt="FinIntelX" class="w-16 h-16 object-contain flex-shrink-0">
++                    <img src="/static/logo_transparent_background.png" alt="FinIntelX"
++                        class="w-16 h-16 object-contain flex-shrink-0">
+                     <div>
+-                        <h1 class="text-lg font-semibold tracking-tight text-white">FinIntelX <span class="text-blue-400 font-normal">Pro</span></h1>
++                        <h1 class="text-lg font-semibold tracking-tight text-white">FinIntelX <span
++                                class="text-blue-400 font-normal">Pro</span></h1>
+                         <p class="text-xs text-slate-500">AI-Powered Equity Research</p>
+                     </div>
+                 </div>
+                 <!-- User Menu -->
+                 <div class="relative" @click.stop="showUserMenu = !showUserMenu">
+-                    <button class="w-8 h-8 bg-gradient-to-br from-slate-600 to-slate-700 rounded-full flex items-center justify-center text-white text-xs font-semibold hover:from-slate-500 hover:to-slate-600 transition-all border border-white/10">{{ userInitial }}</button>
+-                    <div v-if="showUserMenu" class="absolute right-0 top-10 w-56 bg-[#0a0a0a] border border-white/10 rounded-lg shadow-xl py-1 z-50">
++                    <button
++                        class="w-8 h-8 bg-gradient-to-br from-slate-600 to-slate-700 rounded-full flex items-center justify-center text-white text-xs font-semibold hover:from-slate-500 hover:to-slate-600 transition-all border border-white/10">{{
++                        userInitial }}</button>
++                    <div v-if="showUserMenu"
++                        class="absolute right-0 top-10 w-56 bg-[#0a0a0a] border border-white/10 rounded-lg shadow-xl py-1 z-50">
+                         <div class="px-4 py-3 border-b border-slate-700">
+                             <p class="text-sm font-medium text-white truncate">{{ userName }}</p>
+                             <p class="text-xs text-slate-400 truncate">{{ userEmail }}</p>
+                         </div>
+-                        <button v-if="!isGithubUser" @click="showChangePassword = true; showUserMenu = false" class="w-full px-4 py-2 text-left text-sm text-slate-300 hover:bg-slate-700 flex items-center gap-2">
+-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
++                        <button v-if="!isGithubUser" @click="showChangePassword = true; showUserMenu = false"
++                            class="w-full px-4 py-2 text-left text-sm text-slate-300 hover:bg-slate-700 flex items-center gap-2">
++                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
++                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
++                                    d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z">
++                                </path>
++                            </svg>
+                             Change Password
+                         </button>
+-                        <button @click="switchAccount" class="w-full px-4 py-2 text-left text-sm text-slate-300 hover:bg-slate-700 flex items-center gap-2">
+-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
++                        <button @click="switchAccount"
++                            class="w-full px-4 py-2 text-left text-sm text-slate-300 hover:bg-slate-700 flex items-center gap-2">
++                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
++                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
++                                    d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
++                            </svg>
+                             Switch Account
+                         </button>
+                         <div class="border-t border-slate-700 my-1"></div>
+-                        <button @click="logout" class="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-slate-700 flex items-center gap-2">
+-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
++                        <button @click="logout"
++                            class="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-slate-700 flex items-center gap-2">
++                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
++                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
++                                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
++                                </path>
++                            </svg>
+                             Sign out
+                         </button>
+                     </div>
+@@ -161,23 +317,40 @@
+         <div class="flex-1 overflow-y-auto p-3.5 space-y-3 nav-scroll flex flex-col">
+             <!-- CARD 1: Progress Stepper -->
+             <div class="bg-white/5 border border-white/5 rounded-xl p-4 relative overflow-hidden group">
+-                <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
++                <div
++                    class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
++                </div>
+                 <div class="flex items-center justify-between mb-3 relative z-10">
+                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Progress</span>
+-                    <span class="text-[10px] font-mono" :class="isValid ? 'text-emerald-400' : 'text-slate-500'">{{ isValid ? 'READY' : (form.ticker ? 'STEP 2/3' : 'STEP 1/3') }}</span>
++                    <span class="text-[10px] font-mono" :class="isValid ? 'text-emerald-400' : 'text-slate-500'">{{
++                        isValid ? 'READY' : (form.ticker ? 'STEP 2/3' : 'STEP 1/3') }}</span>
+                 </div>
+                 <div class="space-y-3 relative z-10">
+-                    <div class="flex items-center gap-3 transition-all duration-300" :class="form.ticker ? 'opacity-50' : 'opacity-100'">
+-                        <div class="w-2 h-2 rounded-full transition-colors duration-300" :class="form.ticker ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]'"></div>
+-                        <span class="text-xs font-medium" :class="form.ticker ? 'text-emerald-400 line-through decoration-emerald-500/50' : 'text-blue-100'">Enter Ticker Symbol</span>
++                    <div class="flex items-center gap-3 transition-all duration-300"
++                        :class="form.ticker ? 'opacity-50' : 'opacity-100'">
++                        <div class="w-2 h-2 rounded-full transition-colors duration-300"
++                            :class="form.ticker ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]'">
++                        </div>
++                        <span class="text-xs font-medium"
++                            :class="form.ticker ? 'text-emerald-400 line-through decoration-emerald-500/50' : 'text-blue-100'">Enter
++                            Ticker Symbol</span>
+                     </div>
+-                    <div class="flex items-center gap-3 transition-all duration-300" :class="form.company_name ? 'opacity-50' : (form.ticker ? 'opacity-100' : 'opacity-40')">
+-                        <div class="w-1.5 h-1.5 rounded-full transition-colors duration-300" :class="form.company_name ? 'bg-emerald-500' : (form.ticker ? 'bg-blue-400' : 'bg-slate-700')"></div>
+-                        <span class="text-xs font-medium" :class="form.company_name ? 'text-emerald-400 line-through decoration-emerald-500/50' : (form.ticker ? 'text-white' : 'text-slate-500')">Check Company Name</span>
++                    <div class="flex items-center gap-3 transition-all duration-300"
++                        :class="form.company_name ? 'opacity-50' : (form.ticker ? 'opacity-100' : 'opacity-40')">
++                        <div class="w-1.5 h-1.5 rounded-full transition-colors duration-300"
++                            :class="form.company_name ? 'bg-emerald-500' : (form.ticker ? 'bg-blue-400' : 'bg-slate-700')">
++                        </div>
++                        <span class="text-xs font-medium"
++                            :class="form.company_name ? 'text-emerald-400 line-through decoration-emerald-500/50' : (form.ticker ? 'text-white' : 'text-slate-500')">Check
++                            Company Name</span>
+                     </div>
+-                    <div class="flex items-center gap-3 transition-all duration-300" :class="isValid ? 'opacity-100' : 'opacity-40'">
+-                        <div class="w-1.5 h-1.5 rounded-full transition-colors duration-300" :class="isValid ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] animate-pulse' : 'bg-slate-700'"></div>
+-                        <span class="text-xs font-medium" :class="isValid ? 'text-white' : 'text-slate-500'">Ready to Generate</span>
++                    <div class="flex items-center gap-3 transition-all duration-300"
++                        :class="isValid ? 'opacity-100' : 'opacity-40'">
++                        <div class="w-1.5 h-1.5 rounded-full transition-colors duration-300"
++                            :class="isValid ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] animate-pulse' : 'bg-slate-700'">
++                        </div>
++                        <span class="text-xs font-medium" :class="isValid ? 'text-white' : 'text-slate-500'">Ready to
++                            Generate</span>
+                     </div>
+                 </div>
+             </div>
+@@ -185,32 +358,41 @@
+             <!-- CARD 2: Core Data -->
+             <div class="bg-white/5 border border-white/5 rounded-xl p-4 space-y-4 shadow-lg shadow-black/20">
+                 <div class="flex items-center gap-2 mb-1">
+-                    <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
++                    <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
++                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
++                            d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
++                    </svg>
+                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Core Data</span>
+                 </div>
+                 <div>
+                     <label class="block text-[10px] font-medium text-slate-400 mb-1.5 ml-1">Ticker Symbol</label>
+                     <div class="halo-input-wrapper">
+-                        <input type="text" ref="tickerInput" v-model="form.ticker" placeholder="e.g. AAPL" class="halo-input w-full rounded-lg px-3 py-2.5 text-sm font-bold tracking-wide placeholder-slate-600" @input="form.ticker = form.ticker.toUpperCase()">
++                        <input type="text" ref="tickerInput" v-model="form.ticker" placeholder="e.g. AAPL"
++                            class="halo-input w-full rounded-lg px-3 py-2.5 text-sm font-bold tracking-wide placeholder-slate-600"
++                            @input="form.ticker = form.ticker.toUpperCase()">
+                     </div>
+                 </div>
+                 <div>
+                     <label class="block text-[10px] font-medium text-slate-400 mb-1.5 ml-1">Company Name</label>
+                     <div class="halo-input-wrapper">
+-                        <input type="text" v-model="form.company_name" placeholder="Auto-filled or type..." class="halo-input w-full rounded-lg px-3 py-2.5 text-sm placeholder-slate-600">
++                        <input type="text" v-model="form.company_name" placeholder="Auto-filled or type..."
++                            class="halo-input w-full rounded-lg px-3 py-2.5 text-sm placeholder-slate-600">
+                     </div>
+                 </div>
+             </div>
+ 
+             <!-- CARD 3: Options & Actions -->
+-            <div class="bg-white/5 border border-white/5 rounded-xl p-4 space-y-5 shadow-lg shadow-black/20 flex-1 flex flex-col">
++            <div
++                class="bg-white/5 border border-white/5 rounded-xl p-4 space-y-5 shadow-lg shadow-black/20 flex-1 flex flex-col">
+                 <div>
+                     <div class="flex items-center justify-between mb-1.5 ml-1">
+                         <label class="text-[10px] font-medium text-slate-400">Comparables</label>
+                         <span class="text-[9px] text-slate-600 uppercase tracking-wider">Optional</span>
+                     </div>
+                     <div class="halo-input-wrapper">
+-                        <input type="text" v-model="form.peers_str" placeholder="Space separated (e.g. MSFT GOOG)" class="halo-input w-full rounded-lg px-3 py-2 text-xs font-medium placeholder-slate-600" @input="form.peers_str = form.peers_str.toUpperCase()">
++                        <input type="text" v-model="form.peers_str" placeholder="Space separated (e.g. MSFT GOOG)"
++                            class="halo-input w-full rounded-lg px-3 py-2 text-xs font-medium placeholder-slate-600"
++                            @input="form.peers_str = form.peers_str.toUpperCase()">
+                     </div>
+                 </div>
+ 
+@@ -218,11 +400,17 @@
+                 <div>
+                     <label class="block text-[10px] font-medium text-slate-400 mb-2 ml-1">Report Components</label>
+                     <div class="flex gap-2">
+-                        <button type="button" @click="form.generate_text = !form.generate_text" class="flex-1 py-1.5 px-3 rounded-lg text-xs font-medium border transition-all duration-200 flex items-center justify-center gap-1.5" :class="form.generate_text ? 'bg-blue-500/20 text-blue-300 border-blue-500/50' : 'bg-white/5 text-slate-500 border-transparent hover:bg-white/10'">
+-                            <span class="w-1.5 h-1.5 rounded-full" :class="form.generate_text ? 'bg-blue-400' : 'bg-slate-600'"></span>AI Text
++                        <button type="button" @click="form.generate_text = !form.generate_text"
++                            class="flex-1 py-1.5 px-3 rounded-lg text-xs font-medium border transition-all duration-200 flex items-center justify-center gap-1.5"
++                            :class="form.generate_text ? 'bg-blue-500/20 text-blue-300 border-blue-500/50' : 'bg-white/5 text-slate-500 border-transparent hover:bg-white/10'">
++                            <span class="w-1.5 h-1.5 rounded-full"
++                                :class="form.generate_text ? 'bg-blue-400' : 'bg-slate-600'"></span>AI Text
+                         </button>
+-                        <button type="button" @click="form.generate_pdf = !form.generate_pdf" class="flex-1 py-1.5 px-3 rounded-lg text-xs font-medium border transition-all duration-200 flex items-center justify-center gap-1.5" :class="form.generate_pdf ? 'bg-purple-500/20 text-purple-300 border-purple-500/50' : 'bg-white/5 text-slate-500 border-transparent hover:bg-white/10'">
+-                            <span class="w-1.5 h-1.5 rounded-full" :class="form.generate_pdf ? 'bg-purple-400' : 'bg-slate-600'"></span>PDF Report
++                        <button type="button" @click="form.generate_pdf = !form.generate_pdf"
++                            class="flex-1 py-1.5 px-3 rounded-lg text-xs font-medium border transition-all duration-200 flex items-center justify-center gap-1.5"
++                            :class="form.generate_pdf ? 'bg-purple-500/20 text-purple-300 border-purple-500/50' : 'bg-white/5 text-slate-500 border-transparent hover:bg-white/10'">
++                            <span class="w-1.5 h-1.5 rounded-full"
++                                :class="form.generate_pdf ? 'bg-purple-400' : 'bg-slate-600'"></span>PDF Report
+                         </button>
+                     </div>
+                 </div>
+@@ -231,17 +419,30 @@
+                 <div>
+                     <label class="block text-[10px] font-medium text-slate-400 mb-2 ml-1">Enhanced Analysis</label>
+                     <div class="grid grid-cols-2 gap-2">
+-                        <button type="button" @click="form.enable_sensitivity_analysis = !form.enable_sensitivity_analysis" class="py-1.5 px-2 rounded-lg text-[10px] font-medium border transition-all duration-200 flex items-center justify-center gap-1" :class="form.enable_sensitivity_analysis ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50' : 'bg-white/5 text-slate-500 border-transparent hover:bg-white/10'">
+-                            <span class="w-1 h-1 rounded-full" :class="form.enable_sensitivity_analysis ? 'bg-emerald-400' : 'bg-slate-600'"></span>Sensitivity
++                        <button type="button"
++                            @click="form.enable_sensitivity_analysis = !form.enable_sensitivity_analysis"
++                            class="py-1.5 px-2 rounded-lg text-[10px] font-medium border transition-all duration-200 flex items-center justify-center gap-1"
++                            :class="form.enable_sensitivity_analysis ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50' : 'bg-white/5 text-slate-500 border-transparent hover:bg-white/10'">
++                            <span class="w-1 h-1 rounded-full"
++                                :class="form.enable_sensitivity_analysis ? 'bg-emerald-400' : 'bg-slate-600'"></span>Sensitivity
+                         </button>
+-                        <button type="button" @click="form.enable_catalyst_analysis = !form.enable_catalyst_analysis" class="py-1.5 px-2 rounded-lg text-[10px] font-medium border transition-all duration-200 flex items-center justify-center gap-1" :class="form.enable_catalyst_analysis ? 'bg-amber-500/20 text-amber-300 border-amber-500/50' : 'bg-white/5 text-slate-500 border-transparent hover:bg-white/10'">
+-                            <span class="w-1 h-1 rounded-full" :class="form.enable_catalyst_analysis ? 'bg-amber-400' : 'bg-slate-600'"></span>Catalysts
++                        <button type="button" @click="form.enable_catalyst_analysis = !form.enable_catalyst_analysis"
++                            class="py-1.5 px-2 rounded-lg text-[10px] font-medium border transition-all duration-200 flex items-center justify-center gap-1"
++                            :class="form.enable_catalyst_analysis ? 'bg-amber-500/20 text-amber-300 border-amber-500/50' : 'bg-white/5 text-slate-500 border-transparent hover:bg-white/10'">
++                            <span class="w-1 h-1 rounded-full"
++                                :class="form.enable_catalyst_analysis ? 'bg-amber-400' : 'bg-slate-600'"></span>Catalysts
+                         </button>
+-                        <button type="button" @click="form.enable_enhanced_news = !form.enable_enhanced_news" class="py-1.5 px-2 rounded-lg text-[10px] font-medium border transition-all duration-200 flex items-center justify-center gap-1" :class="form.enable_enhanced_news ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/50' : 'bg-white/5 text-slate-500 border-transparent hover:bg-white/10'">
+-                            <span class="w-1 h-1 rounded-full" :class="form.enable_enhanced_news ? 'bg-cyan-400' : 'bg-slate-600'"></span>News+
++                        <button type="button" @click="form.enable_enhanced_news = !form.enable_enhanced_news"
++                            class="py-1.5 px-2 rounded-lg text-[10px] font-medium border transition-all duration-200 flex items-center justify-center gap-1"
++                            :class="form.enable_enhanced_news ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/50' : 'bg-white/5 text-slate-500 border-transparent hover:bg-white/10'">
++                            <span class="w-1 h-1 rounded-full"
++                                :class="form.enable_enhanced_news ? 'bg-cyan-400' : 'bg-slate-600'"></span>News+
+                         </button>
+-                        <button type="button" @click="form.enable_enhanced_charts = !form.enable_enhanced_charts" class="py-1.5 px-2 rounded-lg text-[10px] font-medium border transition-all duration-200 flex items-center justify-center gap-1" :class="form.enable_enhanced_charts ? 'bg-pink-500/20 text-pink-300 border-pink-500/50' : 'bg-white/5 text-slate-500 border-transparent hover:bg-white/10'">
+-                            <span class="w-1 h-1 rounded-full" :class="form.enable_enhanced_charts ? 'bg-pink-400' : 'bg-slate-600'"></span>Charts+
++                        <button type="button" @click="form.enable_enhanced_charts = !form.enable_enhanced_charts"
++                            class="py-1.5 px-2 rounded-lg text-[10px] font-medium border transition-all duration-200 flex items-center justify-center gap-1"
++                            :class="form.enable_enhanced_charts ? 'bg-pink-500/20 text-pink-300 border-pink-500/50' : 'bg-white/5 text-slate-500 border-transparent hover:bg-white/10'">
++                            <span class="w-1 h-1 rounded-full"
++                                :class="form.enable_enhanced_charts ? 'bg-pink-400' : 'bg-slate-600'"></span>Charts+
+                         </button>
+                     </div>
+                 </div>
+@@ -252,31 +453,48 @@
+                 <div class="border-t border-white/5 pt-4">
+                     <div class="flex items-center justify-between mb-3 px-1 h-5">
+                         <transition name="fade" mode="out-in">
+-                            <span v-if="isValid" class="text-[10px] font-bold text-emerald-400 flex items-center gap-1.5 tracking-wide uppercase">
+-                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>Ready to Generate
++                            <span v-if="isValid"
++                                class="text-[10px] font-bold text-emerald-400 flex items-center gap-1.5 tracking-wide uppercase">
++                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>Ready to
++                                Generate
+                             </span>
+-                            <span v-else class="text-[10px] font-medium text-amber-500/90 flex items-center gap-1.5 italic transition-colors">
++                            <span v-else
++                                class="text-[10px] font-medium text-amber-500/90 flex items-center gap-1.5 italic transition-colors">
+                                 <span class="w-1 h-1 rounded-full bg-amber-500/50"></span>
+                                 <span v-if="!form.ticker">Waiting for Ticker Symbol...</span>
+                                 <span v-else>Waiting for Company Name...</span>
+                             </span>
+                         </transition>
+                     </div>
+-                    <button @click="startAnalysis" :disabled="status === 'running' || !isValid" class="w-full relative group overflow-hidden rounded-xl transition-all duration-300" :class="isValid && status !== 'running' ? 'shadow-lg shadow-blue-500/25' : 'opacity-80 cursor-not-allowed'">
+-                        <div class="absolute inset-0 transition-opacity duration-300" :class="isValid && status !== 'running' ? 'opacity-100' : 'opacity-0'">
++                    <button @click="startAnalysis" :disabled="status === 'running' || !isValid"
++                        class="w-full relative group overflow-hidden rounded-xl transition-all duration-300"
++                        :class="isValid && status !== 'running' ? 'shadow-lg shadow-blue-500/25' : 'opacity-80 cursor-not-allowed'">
++                        <div class="absolute inset-0 transition-opacity duration-300"
++                            :class="isValid && status !== 'running' ? 'opacity-100' : 'opacity-0'">
+                             <div class="absolute inset-0 bg-blue-600"></div>
+-                            <div class="absolute inset-0 bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-600 animate-gradient-x"></div>
++                            <div
++                                class="absolute inset-0 bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-600 animate-gradient-x">
++                            </div>
+                         </div>
+-                        <div class="absolute inset-0 bg-slate-800 transition-opacity duration-300" :class="isValid && status !== 'running' ? 'opacity-0' : 'opacity-100'"></div>
++                        <div class="absolute inset-0 bg-slate-800 transition-opacity duration-300"
++                            :class="isValid && status !== 'running' ? 'opacity-0' : 'opacity-100'"></div>
+                         <div class="relative py-3.5 px-4 flex items-center justify-center gap-2">
+                             <span v-if="status === 'running'" class="flex items-center gap-2 text-white font-semibold">
+-                                <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
++                                <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none"
++                                    viewBox="0 0 24 24">
++                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
++                                        stroke-width="4"></circle>
++                                    <path class="opacity-75" fill="currentColor"
++                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
++                                    </path>
+                                 </svg>Generating...
+                             </span>
+-                            <span v-else class="flex items-center gap-2 transition-colors duration-300" :class="isValid ? 'text-white font-bold tracking-wide text-sm' : 'text-slate-500 font-medium'">
+-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
++                            <span v-else class="flex items-center gap-2 transition-colors duration-300"
++                                :class="isValid ? 'text-white font-bold tracking-wide text-sm' : 'text-slate-500 font-medium'">
++                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
++                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
++                                        d="M13 10V3L4 14h7v7l9-11h-7z"></path>
++                                </svg>
+                                 Generate Research Report
+                             </span>
+                         </div>
+@@ -290,178 +508,748 @@
+     <main class="flex-1 flex flex-col bg-[#050505] relative overflow-hidden">
+         <!-- Background Decor -->
+         <div class="absolute inset-0 pointer-events-none">
+-            <div class="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-blue-600/5 rounded-full blur-[100px]"></div>
+-            <div class="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-purple-600/5 rounded-full blur-[100px]"></div>
++            <div class="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-blue-600/5 rounded-full blur-[100px]">
++            </div>
++            <div
++                class="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-purple-600/5 rounded-full blur-[100px]">
++            </div>
+         </div>
+ 
+         <!-- Header -->
+-        <header class="h-16 border-b border-white/5 flex items-center justify-between px-8 z-10 bg-[#050505]/80 backdrop-blur-md">
+-            <div class="flex items-center gap-4">
+-                <h2 class="font-semibold text-slate-300">Mission Control</h2>
+-                <div v-if="activeTasks.length > 0" class="flex items-center gap-2 text-xs font-medium px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
+-                    <span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>{{ activeTasks.length }} Active
++        <header
++            class="h-16 border-b border-white/5 flex items-center justify-between px-8 z-10 bg-[#050505]/80 backdrop-blur-md">
++            <div class="flex items-center gap-6">
++                <div class="flex rounded-lg bg-white/5 p-0.5 border border-white/5">
++                    <button @click="activeTab = 'mission'"
++                        class="px-4 py-1.5 rounded-md text-xs font-bold transition-all"
++                        :class="activeTab === 'mission' ? 'bg-white/10 text-white shadow' : 'text-slate-400 hover:text-white'">Mission
++                        Control</button>
++                    <button @click="activeTab = 'portfolio'"
++                        class="px-4 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-1.5"
++                        :class="activeTab === 'portfolio' ? 'bg-white/10 text-white shadow' : 'text-slate-400 hover:text-white'">
++                        Portfolio Watchlist
++                    </button>
++                </div>
++                <div v-if="activeTab === 'mission' && activeTasks.length > 0"
++                    class="flex items-center gap-2 text-xs font-medium px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
++                    <span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>{{ activeTasks.length }}
++                    Active
+                 </div>
+             </div>
+             <div class="flex items-center gap-4">
++                <!-- Market Selector for Portfolio & Chat -->
++                <div class="flex items-center gap-2">
++                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Market:</label>
++                    <select v-model="portfolioMarket"
++                        class="bg-slate-800/40 border border-slate-700/30 rounded-md px-2 py-1 text-[11px] text-slate-300 font-semibold focus:outline-none focus:border-blue-500/50">
++                        <option value="ALL">🌎 All Markets</option>
++                        <option value="US">🇺🇸 US Market</option>
++                        <option value="IN">🇮🇳 Indian Market</option>
++                    </select>
++                </div>
++
++                <!-- Chat Toggle Button -->
++                <button @click="showChat = !showChat" class="gradient-btn font-bold text-[11px] rounded-lg text-white">
++                    <span class="gradient-btn-inner py-1 px-2.5 flex items-center gap-1.5">
++                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
++                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
++                                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z">
++                            </path>
++                        </svg>
++                        AI Chat
++                    </span>
++                </button>
++
+                 <!-- Status Indicator -->
+                 <div class="flex items-center gap-2 px-2.5 py-1 rounded-md bg-slate-800/40 border border-slate-700/30">
+-                    <span class="w-1.5 h-1.5 rounded-full" :class="form.ticker ? 'bg-emerald-400' : 'bg-slate-600'"></span>
++                    <span class="w-1.5 h-1.5 rounded-full"
++                        :class="form.ticker ? 'bg-emerald-400' : 'bg-slate-600'"></span>
+                     <span class="text-[11px] text-slate-500 font-medium">{{ form.ticker ? 'Active' : 'Idle' }}</span>
+                     <span v-if="form.ticker" class="font-mono text-[11px] text-slate-300">· {{ form.ticker }}</span>
+                 </div>
+-                <!-- GitHub Button Removed -->
+             </div>
+-        </header>
++            <!-- Scrollable Content -->
++            <div class="flex-1 overflow-y-auto p-8 z-10">
++                <div class="max-w-7xl mx-auto space-y-12">
+ 
+-        <!-- Scrollable Content -->
+-        <div class="flex-1 overflow-y-auto p-8 z-10">
+-            <div class="max-w-7xl mx-auto space-y-12">
+-
+-                <!-- Hero Section (show when no tasks) -->
+-                <div v-if="tasks.length === 0" class="h-full flex flex-col items-center justify-center pt-20">
+-                    <div class="mb-8 relative">
+-                        <div class="absolute inset-0 bg-blue-500/30 blur-3xl rounded-full scale-110"></div>
+-                        <img src="/static/logo_transparent_background.png" alt="FinIntelX" class="w-56 h-56 relative z-10 drop-shadow-2xl object-contain">
+-                    </div>
+-                    <div class="text-center mb-12 space-y-6">
+-                        <h1 class="text-5xl font-bold tracking-tight hero-text pb-2">Ready to Generate Reports</h1>
+-                        <p class="text-lg text-slate-400 max-w-2xl mx-auto font-light leading-relaxed">Enter a stock ticker to generate comprehensive AI-powered equity research reports with professional valuation and risk analysis.</p>
+-                        <button @click="focusTickerInput" class="inline-flex items-center gap-2 px-6 py-3 bg-white/5 hover:bg-white/10 text-white rounded-full font-medium transition-all duration-300 border border-white/10 hover:border-blue-500/30 group">
+-                            Start New Analysis
+-                            <svg class="w-4 h-4 text-slate-400 group-hover:text-blue-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+-                        </button>
+-                    </div>
+-                    <!-- Feature Cards -->
+-                    <div class="grid grid-cols-3 gap-6 w-full max-w-4xl">
+-                        <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 text-center hover:bg-slate-800 hover:border-blue-500/30 hover:-translate-y-1 transition-all duration-300 group cursor-default">
+-                            <div class="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-all">
+-                                <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
++                    <!-- Tab 1: Mission Control -->
++                    <div v-if="activeTab === 'mission'" class="space-y-12">
++                        <!-- Hero Section (show when no tasks) -->
++                        <div v-if="tasks.length === 0" class="h-full flex flex-col items-center justify-center pt-20">
++                            <div class="mb-8 relative">
++                                <div class="absolute inset-0 bg-blue-500/30 blur-3xl rounded-full scale-110"></div>
++                                <img src="/static/logo_transparent_background.png" alt="FinIntelX"
++                                    class="w-56 h-56 relative z-10 drop-shadow-2xl object-contain">
+                             </div>
+-                            <h4 class="text-base font-semibold text-white mb-1.5 group-hover:text-blue-300 transition-colors">Report Highlights</h4>
+-                            <p class="text-sm text-slate-400 font-light">Key metrics & insights</p>
+-                        </div>
+-                        <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 text-center hover:bg-slate-800 hover:border-emerald-500/30 hover:-translate-y-1 transition-all duration-300 group cursor-default">
+-                            <div class="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-all">
+-                                <svg class="w-6 h-6 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
++                            <div class="text-center mb-12 space-y-6">
++                                <h1 class="text-5xl font-bold tracking-tight hero-text pb-2">Ready to Generate Reports
++                                </h1>
++                                <p class="text-lg text-slate-400 max-w-2xl mx-auto font-light leading-relaxed">Enter a
++                                    stock ticker to generate comprehensive AI-powered equity research reports with
++                                    professional valuation and risk analysis.</p>
++                                <button @click="focusTickerInput"
++                                    class="inline-flex items-center gap-2 px-6 py-3 bg-white/5 hover:bg-white/10 text-white rounded-full font-medium transition-all duration-300 border border-white/10 hover:border-blue-500/30 group">
++                                    Start New Analysis
++                                    <svg class="w-4 h-4 text-slate-400 group-hover:text-blue-400 transition-colors"
++                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
++                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
++                                            d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
++                                    </svg>
++                                </button>
+                             </div>
+-                            <h4 class="text-base font-semibold text-white mb-1.5 group-hover:text-emerald-300 transition-colors">Valuation</h4>
+-                            <p class="text-sm text-slate-400 font-light">DCF & peer comparison</p>
+-                        </div>
+-                        <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 text-center hover:bg-slate-800 hover:border-amber-500/30 hover:-translate-y-1 transition-all duration-300 group cursor-default">
+-                            <div class="w-12 h-12 bg-amber-500/10 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-all">
+-                                <svg class="w-6 h-6 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
++                            <!-- Feature Cards -->
++                            <div class="grid grid-cols-3 gap-6 w-full max-w-4xl">
++                                <div
++                                    class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 text-center hover:bg-slate-800 hover:border-blue-500/30 hover:-translate-y-1 transition-all duration-300 group cursor-default">
++                                    <div
++                                        class="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-all">
++                                        <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor"
++                                            viewBox="0 0 24 24">
++                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
++                                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
++                                            </path>
++                                        </svg>
++                                    </div>
++                                    <h4
++                                        class="text-base font-semibold text-white mb-1.5 group-hover:text-blue-300 transition-colors">
++                                        Report Highlights</h4>
++                                    <p class="text-sm text-slate-400 font-light">Key metrics & insights</p>
++                                </div>
++                                <div
++                                    class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 text-center hover:bg-slate-800 hover:border-emerald-500/30 hover:-translate-y-1 transition-all duration-300 group cursor-default">
++                                    <div
++                                        class="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-all">
++                                        <svg class="w-6 h-6 text-emerald-500" fill="none" stroke="currentColor"
++                                            viewBox="0 0 24 24">
++                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
++                                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
++                                            </path>
++                                        </svg>
++                                    </div>
++                                    <h4
++                                        class="text-base font-semibold text-white mb-1.5 group-hover:text-emerald-300 transition-colors">
++                                        Valuation</h4>
++                                    <p class="text-sm text-slate-400 font-light">DCF & peer comparison</p>
++                                </div>
++                                <div
++                                    class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-6 text-center hover:bg-slate-800 hover:border-amber-500/30 hover:-translate-y-1 transition-all duration-300 group cursor-default">
++                                    <div
++                                        class="w-12 h-12 bg-amber-500/10 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-all">
++                                        <svg class="w-6 h-6 text-amber-500" fill="none" stroke="currentColor"
++                                            viewBox="0 0 24 24">
++                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
++                                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
++                                            </path>
++                                        </svg>
++                                    </div>
++                                    <h4
++                                        class="text-base font-semibold text-white mb-1.5 group-hover:text-amber-300 transition-colors">
++                                        Risk Analysis</h4>
++                                    <p class="text-sm text-slate-400 font-light">Key risks & catalysts</p>
++                                </div>
+                             </div>
+-                            <h4 class="text-base font-semibold text-white mb-1.5 group-hover:text-amber-300 transition-colors">Risk Analysis</h4>
+-                            <p class="text-sm text-slate-400 font-light">Key risks & catalysts</p>
+                         </div>
+-                    </div>
+-                </div>
+ 
+-                <!-- Active Tasks Section -->
+-                <section v-if="activeTasks.length > 0">
+-                    <div class="flex items-center justify-between mb-4">
+-                        <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+-                            Processing Queue
+-                        </h3>
+-                    </div>
+-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+-                        <div v-for="task in activeTasks" :key="task.id" class="group relative overflow-hidden rounded-xl border border-white/10 bg-white/5 hover:border-blue-500/30 transition-all duration-300">
+-                            <div class="px-5 py-4 border-b border-white/5 bg-black/20 flex justify-between items-start">
+-                                <div>
+-                                    <div class="flex items-center gap-3 mb-1">
+-                                        <h4 class="text-xl font-bold font-mono tracking-tight text-white">{{ task.ticker }}</h4>
+-                                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30 animate-pulse">RUNNING</span>
+-                                    </div>
+-                                    <p class="text-xs text-slate-400 font-medium truncate max-w-[150px]">{{ task.company }}</p>
+-                                </div>
+-                                <div class="text-sm font-mono text-blue-400 font-bold">{{ task.progress }}%</div>
++                        <!-- Active Tasks Section -->
++                        <section v-if="activeTasks.length > 0">
++                            <div class="flex items-center justify-between mb-4">
++                                <h3
++                                    class="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
++                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
++                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
++                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
++                                    </svg>
++                                    Processing Queue
++                                </h3>
+                             </div>
+-                            <div class="p-5 space-y-4">
+-                                <div class="space-y-2">
+-                                    <div class="flex justify-between text-xs text-slate-400">
+-                                        <span>Current Stage</span>
+-                                        <span class="text-white font-medium">{{ task.stage }}</span>
++                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
++                                <div v-for="task in activeTasks" :key="task.id"
++                                    class="group relative overflow-hidden rounded-xl border border-white/10 bg-white/5 hover:border-blue-500/30 transition-all duration-300">
++                                    <div
++                                        class="px-5 py-4 border-b border-white/5 bg-black/20 flex justify-between items-start">
++                                        <div>
++                                            <div class="flex items-center gap-3 mb-1">
++                                                <h4 class="text-xl font-bold font-mono tracking-tight text-white">{{
++                                                    task.ticker }}</h4>
++                                                <span
++                                                    class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30 animate-pulse">RUNNING</span>
++                                            </div>
++                                            <p class="text-xs text-slate-400 font-medium truncate max-w-[150px]">{{
++                                                task.company }}</p>
++                                        </div>
++                                        <div class="text-sm font-mono text-blue-400 font-bold">{{ task.progress }}%
++                                        </div>
+                                     </div>
+-                                    <div class="h-1.5 bg-slate-800 rounded-full overflow-hidden">
+-                                        <div class="h-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-500" :style="{ width: task.progress + '%' }"></div>
++                                    <div class="p-5 space-y-4">
++                                        <div class="space-y-2">
++                                            <div class="flex justify-between text-xs text-slate-400">
++                                                <span>Current Stage</span>
++                                                <span class="text-white font-medium">{{ task.stage }}</span>
++                                            </div>
++                                            <div class="h-1.5 bg-slate-800 rounded-full overflow-hidden">
++                                                <div class="h-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-500"
++                                                    :style="{ width: task.progress + '%' }"></div>
++                                            </div>
++                                        </div>
++                                        <div
++                                            class="mt-4 p-3 bg-black/50 rounded border border-white/5 font-mono text-[10px] text-slate-400 h-20 overflow-hidden relative">
++                                            <div
++                                                class="absolute inset-0 bg-gradient-to-b from-transparent to-black/90 pointer-events-none">
++                                            </div>
++                                            <div class="flex flex-col justify-end h-full">
++                                                <p v-if="task.logs.length > 1"
++                                                    class="text-slate-600 truncate opacity-50">{{
++                                                    task.logs[task.logs.length - 2] }}</p>
++                                                <p v-if="task.logs.length > 0" class="text-emerald-400/90 truncate">> {{
++                                                    task.logs[task.logs.length - 1] }}</p>
++                                            </div>
++                                        </div>
+                                     </div>
+-                                </div>
+-                                <div class="mt-4 p-3 bg-black/50 rounded border border-white/5 font-mono text-[10px] text-slate-400 h-20 overflow-hidden relative">
+-                                    <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/90 pointer-events-none"></div>
+-                                    <div class="flex flex-col justify-end h-full">
+-                                        <p v-if="task.logs.length > 1" class="text-slate-600 truncate opacity-50">{{ task.logs[task.logs.length - 2] }}</p>
+-                                        <p v-if="task.logs.length > 0" class="text-emerald-400/90 truncate">> {{ task.logs[task.logs.length - 1] }}</p>
++                                    <div class="px-4 py-3 bg-white/5 border-t border-white/5">
++                                        <button @click="task.showLogs = !task.showLogs"
++                                            class="w-full py-1.5 px-3 rounded text-xs font-medium bg-white/5 hover:bg-white/10 text-slate-300 transition-colors border border-white/5">{{
++                                            task.showLogs ? 'Hide Logs' : 'View Logs' }}</button>
++                                    </div>
++                                    <div v-if="task.showLogs"
++                                        class="absolute inset-x-0 bottom-0 top-[60px] bg-[#0a0a0a]/95 backdrop-blur-md z-20 flex flex-col">
++                                        <div class="flex-1 overflow-y-auto p-4 font-mono text-xs space-y-1">
++                                            <div v-for="(log, idx) in task.logs" :key="idx" class="break-words"
++                                                :class="log.includes('Error') ? 'text-red-400' : 'text-slate-400'">
++                                                <span class="text-slate-600 mr-2">[{{ idx + 1 }}]</span>{{ log }}
++                                            </div>
++                                        </div>
++                                        <div class="p-2 border-t border-white/10 bg-black/50 text-center">
++                                            <button @click="task.showLogs = false"
++                                                class="text-xs text-slate-400 hover:text-white uppercase tracking-wider font-bold">Close
++                                                Logs</button>
++                                        </div>
+                                     </div>
+                                 </div>
+                             </div>
+-                            <div class="px-4 py-3 bg-white/5 border-t border-white/5">
+-                                <button @click="task.showLogs = !task.showLogs" class="w-full py-1.5 px-3 rounded text-xs font-medium bg-white/5 hover:bg-white/10 text-slate-300 transition-colors border border-white/5">{{ task.showLogs ? 'Hide Logs' : 'View Logs' }}</button>
++                        </section>
++
++                        <!-- Completed Reports Section -->
++                        <section v-if="completedTasks.length > 0">
++                            <div class="flex items-center justify-between mb-4">
++                                <h3
++                                    class="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
++                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
++                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
++                                            d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4">
++                                        </path>
++                                    </svg>
++                                    Research Archive
++                                </h3>
+                             </div>
+-                            <div v-if="task.showLogs" class="absolute inset-x-0 bottom-0 top-[60px] bg-[#0a0a0a]/95 backdrop-blur-md z-20 flex flex-col">
+-                                <div class="flex-1 overflow-y-auto p-4 font-mono text-xs space-y-1">
+-                                    <div v-for="(log, idx) in task.logs" :key="idx" class="break-words" :class="log.includes('Error') ? 'text-red-400' : 'text-slate-400'">
+-                                        <span class="text-slate-600 mr-2">[{{ idx + 1 }}]</span>{{ log }}
++                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
++                                <div v-for="task in completedTasks" :key="task.id"
++                                    class="group relative rounded-xl p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl border border-white/5 bg-white/5"
++                                    :class="task.status === 'failed' ? 'hover:shadow-red-500/10 hover:border-red-500/20' : 'hover:shadow-emerald-500/10 hover:border-emerald-500/20'">
++                                    <div class="flex justify-between items-start mb-3">
++                                        <div class="w-10 h-10 rounded-lg flex items-center justify-center transition-colors"
++                                            :class="task.status === 'failed' ? 'bg-red-500/10 text-red-500 group-hover:bg-red-500 group-hover:text-white' : 'bg-emerald-500/10 text-emerald-500 group-hover:bg-emerald-500 group-hover:text-white'">
++                                            <svg v-if="task.status === 'failed'" class="w-5 h-5" fill="none"
++                                                stroke="currentColor" viewBox="0 0 24 24">
++                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
++                                                    d="M6 18L18 6M6 6l12 12"></path>
++                                            </svg>
++                                            <svg v-else class="w-5 h-5" fill="none" stroke="currentColor"
++                                                viewBox="0 0 24 24">
++                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
++                                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
++                                            </svg>
++                                        </div>
++                                        <button @click.stop="deleteTask(task)"
++                                            class="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-red-500/20 text-slate-500 hover:text-red-400"
++                                            title="Delete">
++                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
++                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
++                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
++                                                </path>
++                                            </svg>
++                                        </button>
++                                    </div>
++                                    <h4 class="font-bold text-white mb-0.5 tracking-tight">{{ task.ticker }}</h4>
++                                    <p class="text-xs text-slate-400 mb-4 line-clamp-1 h-4">{{ task.company ||
++                                        task.company_name }}</p>
++                                    <div v-if="task.status === 'completed' && task.result" class="grid gap-2"
++                                        :class="(task.result.pdf && task.result.pdf.length) || (task.result.html && task.result.html.length) ? 'grid-cols-3' : 'grid-cols-1'">
++                                        <a v-if="task.result.html && task.result.html.length" href="#"
++                                            @click.prevent="openReport(task, 'html')"
++                                            class="flex items-center justify-center gap-1 py-1.5 rounded bg-white/5 hover:bg-blue-500/20 text-slate-300 hover:text-blue-400 text-[10px] font-bold transition-all border border-white/5 hover:border-blue-500/30">HTML</a>
++                                        <a v-if="task.result.pdf && task.result.pdf.length" href="#"
++                                            @click.prevent="openReport(task, 'pdf')"
++                                            class="flex items-center justify-center gap-1 py-1.5 rounded bg-white/5 hover:bg-emerald-500/20 text-slate-300 hover:text-emerald-400 text-[10px] font-bold transition-all border border-white/5 hover:border-emerald-500/30">PDF</a>
++                                        <button @click="viewTaskLog(task)"
++                                            class="flex items-center justify-center gap-1 py-1.5 rounded bg-white/5 hover:bg-amber-500/20 text-slate-300 hover:text-amber-400 text-[10px] font-bold transition-all border border-white/5 hover:border-amber-500/30">LOG</button>
++                                    </div>
++                                    <div v-else-if="task.status === 'failed'" class="grid grid-cols-1 gap-2">
++                                        <button @click="viewTaskLog(task)"
++                                            class="flex items-center justify-center gap-1 py-1.5 rounded bg-white/5 hover:bg-red-500/20 text-slate-300 hover:text-red-400 text-[10px] font-bold transition-all border border-white/5 hover:border-red-500/30">VIEW
++                                            LOG</button>
++                                    </div>
++                                    <div v-else class="text-center text-[10px] text-slate-500 italic">Finalizing...
++                                    </div>
++                                    <!-- Log Viewer Overlay -->
++                                    <div v-if="task.showLogs"
++                                        class="absolute inset-0 bg-[#0a0a0a] z-30 flex flex-col p-4 rounded-xl">
++                                        <div class="flex justify-between items-center mb-2">
++                                            <span class="text-xs font-bold"
++                                                :class="task.status === 'failed' ? 'text-red-500' : 'text-amber-500'">{{
++                                                task.ticker }} - Task Log</span>
++                                            <div class="flex items-center gap-2">
++                                                <a v-if="task.id && !task.id.startsWith('pending_')"
++                                                    :href="'/api/logs/' + task.id + '/download'" target="_blank"
++                                                    class="text-[10px] text-slate-400 hover:text-amber-400 transition-colors"
++                                                    title="Download full log">Download</a>
++                                                <button @click="task.showLogs = false"
++                                                    class="text-xs text-slate-400 hover:text-white">✕</button>
++                                            </div>
++                                        </div>
++                                        <div class="flex-1 overflow-y-auto font-mono text-[10px] space-y-0.5 leading-relaxed"
++                                            :class="task.status === 'failed' ? 'text-red-300/80' : 'text-slate-300/80'">
++                                            <div v-for="(log, idx) in task.logs" :key="idx"
++                                                class="py-0.5 border-b border-white/5">{{ log }}</div>
++                                            <div v-if="!task.logs || task.logs.length === 0"
++                                                class="text-slate-500 italic">No logs available for this task.</div>
++                                        </div>
+                                     </div>
+-                                </div>
+-                                <div class="p-2 border-t border-white/10 bg-black/50 text-center">
+-                                    <button @click="task.showLogs = false" class="text-xs text-slate-400 hover:text-white uppercase tracking-wider font-bold">Close Logs</button>
+                                 </div>
+                             </div>
+-                        </div>
+-                    </div>
+-                </section>
+-
+-                <!-- Completed Reports Section -->
+-                <section v-if="completedTasks.length > 0">
+-                    <div class="flex items-center justify-between mb-4">
+-                        <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
+-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg>
+-                            Research Archive
+-                        </h3>
++                        </section>
+                     </div>
+-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+-                        <div v-for="task in completedTasks" :key="task.id" class="group relative rounded-xl p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl border border-white/5 bg-white/5" :class="task.status === 'failed' ? 'hover:shadow-red-500/10 hover:border-red-500/20' : 'hover:shadow-emerald-500/10 hover:border-emerald-500/20'">
+-                            <div class="flex justify-between items-start mb-3">
+-                                <div class="w-10 h-10 rounded-lg flex items-center justify-center transition-colors" :class="task.status === 'failed' ? 'bg-red-500/10 text-red-500 group-hover:bg-red-500 group-hover:text-white' : 'bg-emerald-500/10 text-emerald-500 group-hover:bg-emerald-500 group-hover:text-white'">
+-                                    <svg v-if="task.status === 'failed'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+-                                    <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
++
++                    <!-- Tab 2: Portfolio Watchlist -->
++                    <div v-if="activeTab === 'portfolio'" class="space-y-6">
++                        <!-- Market Indices & Overview -->
++                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
++                            <div v-for="idx in marketIndices" :key="idx.symbol"
++                                class="bg-[#0a0a0a] border border-white/5 rounded-xl p-4 flex items-center justify-between">
++                                <div>
++                                    <p class="text-xs text-slate-500 font-medium">{{ idx.name }}</p>
++                                    <p class="text-xl font-bold tracking-tight text-white mt-1">{{ idx.currency }}{{
++                                        idx.price.toLocaleString(undefined, {minimumFractionDigits: 2,
++                                        maximumFractionDigits: 2}) }}</p>
++                                    <p class="text-xs font-semibold mt-1 flex items-center gap-1"
++                                        :class="idx.change >= 0 ? 'text-emerald-400' : 'text-rose-400'">
++                                        <span v-if="idx.change >= 0">▲</span><span v-else>▼</span>
++                                        {{ idx.changePercent.toFixed(2) }}% ({{ idx.change >= 0 ? '+' : '' }}{{
++                                        idx.change.toFixed(2) }})
++                                    </p>
++                                </div>
++                                <!-- Mini Sparkline Index Chart -->
++                                <div class="w-24 h-10">
++                                    <svg class="w-full h-full" viewBox="0 0 100 30" preserveAspectRatio="none">
++                                        <polyline fill="none" :stroke="idx.change >= 0 ? '#34d399' : '#f87171'"
++                                            stroke-width="1.5" :points="getSparklinePoints(idx.sparkline, 100, 30)" />
++                                    </svg>
+                                 </div>
+-                                <button @click.stop="deleteTask(task)" class="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-red-500/20 text-slate-500 hover:text-red-400" title="Delete">
+-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+-                                </button>
+                             </div>
+-                            <h4 class="font-bold text-white mb-0.5 tracking-tight">{{ task.ticker }}</h4>
+-                            <p class="text-xs text-slate-400 mb-4 line-clamp-1 h-4">{{ task.company || task.company_name }}</p>
+-                            <div v-if="task.status === 'completed' && task.result" class="grid gap-2" :class="(task.result.pdf && task.result.pdf.length) || (task.result.html && task.result.html.length) ? 'grid-cols-3' : 'grid-cols-1'">
+-                                <a v-if="task.result.html && task.result.html.length" href="#" @click.prevent="openReport(task, 'html')" class="flex items-center justify-center gap-1 py-1.5 rounded bg-white/5 hover:bg-blue-500/20 text-slate-300 hover:text-blue-400 text-[10px] font-bold transition-all border border-white/5 hover:border-blue-500/30">HTML</a>
+-                                <a v-if="task.result.pdf && task.result.pdf.length" href="#" @click.prevent="openReport(task, 'pdf')" class="flex items-center justify-center gap-1 py-1.5 rounded bg-white/5 hover:bg-emerald-500/20 text-slate-300 hover:text-emerald-400 text-[10px] font-bold transition-all border border-white/5 hover:border-emerald-500/30">PDF</a>
+-                                <button @click="viewTaskLog(task)" class="flex items-center justify-center gap-1 py-1.5 rounded bg-white/5 hover:bg-amber-500/20 text-slate-300 hover:text-amber-400 text-[10px] font-bold transition-all border border-white/5 hover:border-amber-500/30">LOG</button>
++                        </div>
++
++                        <!-- Portfolio P&L Summary (Show only when there are holdings) -->
++                        <div v-if="holdings.length > 0"
++                            class="bg-gradient-to-br from-blue-900/10 to-slate-900/20 border border-white/5 rounded-xl p-6 flex flex-col md:flex-row md:items-center justify-between gap-6">
++                            <div class="space-y-1">
++                                <h3 class="text-slate-400 text-xs font-semibold uppercase tracking-wider">Total
++                                    Portfolio Value</h3>
++                                <div class="flex items-baseline gap-2">
++                                    <span class="text-3xl font-extrabold tracking-tight text-white">{{ portfolioCurrency
++                                        }}{{ portfolioStats.currentValue.toLocaleString(undefined,
++                                        {maximumFractionDigits: 2}) }}</span>
++                                    <span class="text-xs font-bold px-2 py-0.5 rounded"
++                                        :class="portfolioStats.totalPnL >= 0 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'">
++                                        {{ portfolioStats.totalPnL >= 0 ? '+' : '' }}{{
++                                        portfolioStats.totalPnLPercent.toFixed(2) }}%
++                                    </span>
++                                </div>
+                             </div>
+-                            <div v-else-if="task.status === 'failed'" class="grid grid-cols-1 gap-2">
+-                                <button @click="viewTaskLog(task)" class="flex items-center justify-center gap-1 py-1.5 rounded bg-white/5 hover:bg-red-500/20 text-slate-300 hover:text-red-400 text-[10px] font-bold transition-all border border-white/5 hover:border-red-500/30">VIEW LOG</button>
++                            <div
++                                class="grid grid-cols-2 md:grid-cols-3 gap-6 md:gap-12 border-t md:border-t-0 md:border-l border-white/5 pt-4 md:pt-0 md:pl-8 flex-1">
++                                <div>
++                                    <p class="text-slate-500 text-[10px] font-semibold uppercase tracking-wider">Total
++                                        Invested</p>
++                                    <p class="text-lg font-bold text-white mt-1">{{ portfolioCurrency }}{{
++                                        portfolioStats.totalInvested.toLocaleString(undefined, {maximumFractionDigits:
++                                        2}) }}</p>
++                                </div>
++                                <div>
++                                    <p class="text-slate-500 text-[10px] font-semibold uppercase tracking-wider">Total
++                                        Gain/Loss</p>
++                                    <p class="text-lg font-bold mt-1"
++                                        :class="portfolioStats.totalPnL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
++                                        {{ portfolioStats.totalPnL >= 0 ? '+' : '' }}{{
++                                        portfolioStats.totalPnL.toLocaleString(undefined, {maximumFractionDigits: 2}) }}
++                                    </p>
++                                </div>
++                                <div class="col-span-2 md:col-span-1">
++                                    <p class="text-slate-500 text-[10px] font-semibold uppercase tracking-wider">Today's
++                                        Return</p>
++                                    <p class="text-lg font-bold mt-1"
++                                        :class="portfolioStats.todayPnL >= 0 ? 'text-emerald-400' : 'text-rose-400'">
++                                        {{ portfolioStats.todayPnL >= 0 ? '+' : '' }}{{
++                                        portfolioStats.todayPnL.toLocaleString(undefined, {maximumFractionDigits: 2}) }}
++                                    </p>
++                                </div>
+                             </div>
+-                            <div v-else class="text-center text-[10px] text-slate-500 italic">Finalizing...</div>
+-                            <!-- Log Viewer Overlay -->
+-                            <div v-if="task.showLogs" class="absolute inset-0 bg-[#0a0a0a] z-30 flex flex-col p-4 rounded-xl">
+-                                <div class="flex justify-between items-center mb-2">
+-                                    <span class="text-xs font-bold" :class="task.status === 'failed' ? 'text-red-500' : 'text-amber-500'">{{ task.ticker }} - Task Log</span>
+-                                    <div class="flex items-center gap-2">
+-                                        <a v-if="task.id && !task.id.startsWith('pending_')" :href="'/api/logs/' + task.id + '/download'" target="_blank" class="text-[10px] text-slate-400 hover:text-amber-400 transition-colors" title="Download full log">Download</a>
+-                                        <button @click="task.showLogs = false" class="text-xs text-slate-400 hover:text-white">✕</button>
++                        </div>
++
++                        <!-- Watchlist & Holdings Table -->
++                        <div class="bg-[#0a0a0a] border border-white/5 rounded-xl overflow-hidden shadow-2xl">
++                            <div
++                                class="px-6 py-4 border-b border-white/5 flex items-center justify-between bg-black/40">
++                                <div class="flex items-center gap-4">
++                                    <h3 class="text-sm font-semibold tracking-tight text-white">Holdings & Watchlist
++                                    </h3>
++                                    <div class="flex rounded-lg bg-white/5 p-0.5 border border-white/5">
++                                        <button @click="portfolioFilter = 'all'"
++                                            class="px-3 py-1 rounded text-xs font-semibold transition-colors"
++                                            :class="portfolioFilter === 'all' ? 'bg-white/10 text-white' : 'text-slate-400 hover:text-white'">All</button>
++                                        <button @click="portfolioFilter = 'holdings'"
++                                            class="px-3 py-1 rounded text-xs font-semibold transition-colors"
++                                            :class="portfolioFilter === 'holdings' ? 'bg-white/10 text-white' : 'text-slate-400 hover:text-white'">Holdings</button>
++                                        <button @click="portfolioFilter = 'watchlist'"
++                                            class="px-3 py-1 rounded text-xs font-semibold transition-colors"
++                                            :class="portfolioFilter === 'watchlist' ? 'bg-white/10 text-white' : 'text-slate-400 hover:text-white'">Watchlist</button>
+                                     </div>
+                                 </div>
+-                                <div class="flex-1 overflow-y-auto font-mono text-[10px] space-y-0.5 leading-relaxed" :class="task.status === 'failed' ? 'text-red-300/80' : 'text-slate-300/80'">
+-                                    <div v-for="(log, idx) in task.logs" :key="idx" class="py-0.5 border-b border-white/5">{{ log }}</div>
+-                                    <div v-if="!task.logs || task.logs.length === 0" class="text-slate-500 italic">No logs available for this task.</div>
++                                <div class="flex items-center gap-3">
++                                    <button @click="openAddSymbolModal"
++                                        class="gradient-btn font-semibold text-xs rounded-lg text-white">
++                                        <span class="gradient-btn-inner flex items-center gap-1.5">
++                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
++                                                viewBox="0 0 24 24">
++                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
++                                                    d="M12 4v16m8-8H4"></path>
++                                            </svg>
++                                            Add symbol
++                                        </span>
++                                    </button>
+                                 </div>
+                             </div>
++
++                            <!-- Table -->
++                            <div class="overflow-x-auto">
++                                <table class="w-full text-left border-collapse">
++                                    <thead>
++                                        <tr
++                                            class="text-[10px] font-bold text-slate-500 uppercase tracking-widest border-b border-white/5 bg-black/20">
++                                            <th class="px-6 py-3 cursor-pointer select-none"
++                                                @click="sortPortfolio('symbol')">Symbols <span
++                                                    class="text-slate-600 font-mono">{{ getSortArrow('symbol') }}</span>
++                                            </th>
++                                            <th class="px-6 py-3">Trend</th>
++                                            <th class="px-6 py-3 text-right cursor-pointer select-none"
++                                                @click="sortPortfolio('price')">Price <span
++                                                    class="text-slate-600 font-mono">{{ getSortArrow('price') }}</span>
++                                            </th>
++                                            <th class="px-6 py-3 text-right cursor-pointer select-none"
++                                                @click="sortPortfolio('change')">Change <span
++                                                    class="text-slate-600 font-mono">{{ getSortArrow('change') }}</span>
++                                            </th>
++                                            <th class="px-6 py-3 text-right cursor-pointer select-none"
++                                                @click="sortPortfolio('changePercent')">% change <span
++                                                    class="text-slate-600 font-mono">{{ getSortArrow('changePercent')
++                                                    }}</span></th>
++                                            <th class="px-6 py-3 text-right">Prev close</th>
++                                            <th class="px-6 py-3 text-right">Open</th>
++                                            <th class="px-6 py-3 text-right">High</th>
++                                            <th class="px-6 py-3 text-right">Low</th>
++                                            <th class="px-6 py-3 text-right">Volume</th>
++                                            <th class="px-6 py-3 text-right">Mkt cap</th>
++                                            <th class="px-6 py-3 text-center">Type</th>
++                                            <th class="px-6 py-3 text-center">Action</th>
++                                        </tr>
++                                    </thead>
++                                    <tbody class="divide-y divide-white/5">
++                                        <tr v-for="item in filteredPortfolio" :key="item.id + '-' + item.symbol"
++                                            class="hover:bg-white/5 transition-colors group">
++                                            <!-- Symbol -->
++                                            <td class="px-6 py-4">
++                                                <div class="flex flex-col">
++                                                    <span class="text-sm font-bold tracking-tight text-white">{{
++                                                        item.symbol }}</span>
++                                                    <span
++                                                        class="text-[11px] text-slate-400 font-medium truncate max-w-[140px]">{{
++                                                        item.company_name }}</span>
++                                                </div>
++                                            </td>
++                                            <!-- Trend Chart -->
++                                            <td class="px-6 py-4">
++                                                <div class="w-20 h-6">
++                                                    <svg v-if="item.live.sparkline && item.live.sparkline.length"
++                                                        class="w-full h-full" viewBox="0 0 100 30"
++                                                        preserveAspectRatio="none">
++                                                        <polyline fill="none"
++                                                            :stroke="item.live.change >= 0 ? '#10b981' : '#ef4444'"
++                                                            stroke-width="1.5"
++                                                            :points="getSparklinePoints(item.live.sparkline, 100, 30)" />
++                                                    </svg>
++                                                    <span v-else class="text-[10px] text-slate-600 italic">No
++                                                        trend</span>
++                                                </div>
++                                            </td>
++                                            <!-- Price -->
++                                            <td class="px-6 py-4 text-right font-bold text-sm">
++                                                {{ item.live.currency }}{{ item.live.price.toLocaleString(undefined,
++                                                {minimumFractionDigits: 2, maximumFractionDigits: 2}) }}
++                                            </td>
++                                            <!-- Change -->
++                                            <td class="px-6 py-4 text-right font-semibold text-xs"
++                                                :class="item.live.change >= 0 ? 'text-emerald-400' : 'text-rose-400'">
++                                                {{ item.live.change >= 0 ? '+' : '' }}{{
++                                                item.live.change.toLocaleString(undefined, {minimumFractionDigits: 2,
++                                                maximumFractionDigits: 2}) }}
++                                            </td>
++                                            <!-- % Change -->
++                                            <td class="px-6 py-4 text-right">
++                                                <span
++                                                    class="px-2 py-0.5 rounded text-[11px] font-bold inline-block min-w-[65px] text-center"
++                                                    :class="item.live.change >= 0 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'">
++                                                    {{ item.live.change >= 0 ? '+' : '' }}{{
++                                                    item.live.changePercent.toFixed(2) }}%
++                                                </span>
++                                            </td>
++                                            <!-- Quote Metrics -->
++                                            <td class="px-6 py-4 text-right text-xs font-mono text-slate-400">{{
++                                                item.live.prevClose ? item.live.currency +
++                                                item.live.prevClose.toLocaleString(undefined, {minimumFractionDigits:
++                                                2}) : '--' }}</td>
++                                            <td class="px-6 py-4 text-right text-xs font-mono text-slate-400">{{
++                                                item.live.open ? item.live.currency +
++                                                item.live.open.toLocaleString(undefined, {minimumFractionDigits: 2}) :
++                                                '--' }}</td>
++                                            <td class="px-6 py-4 text-right text-xs font-mono text-slate-400">{{
++                                                item.live.high ? item.live.currency +
++                                                item.live.high.toLocaleString(undefined, {minimumFractionDigits: 2}) :
++                                                '--' }}</td>
++                                            <td class="px-6 py-4 text-right text-xs font-mono text-slate-400">{{
++                                                item.live.low ? item.live.currency +
++                                                item.live.low.toLocaleString(undefined, {minimumFractionDigits: 2}) :
++                                                '--' }}</td>
++                                            <td class="px-6 py-4 text-right text-xs font-mono text-slate-400">{{
++                                                item.live.volume }}</td>
++                                            <td class="px-6 py-4 text-right text-xs font-mono text-slate-400">{{
++                                                item.live.marketCap }}</td>
++                                            <!-- Type badge -->
++                                            <td class="px-6 py-4 text-center">
++                                                <span v-if="item.shares > 0"
++                                                    class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-blue-500/10 text-blue-300 border border-blue-500/20">HOLDING
++                                                    ({{ item.shares }})</span>
++                                                <span v-else
++                                                    class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-slate-500/10 text-slate-400 border border-slate-500/20">WATCHLIST</span>
++                                            </td>
++                                            <!-- Action -->
++                                            <td class="px-6 py-4 text-center">
++                                                <button @click="deletePortfolioItem(item)"
++                                                    class="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-red-500/20 text-slate-500 hover:text-red-400"
++                                                    title="Remove">
++                                                    <svg class="w-4 h-4 mx-auto" fill="none" stroke="currentColor"
++                                                        viewBox="0 0 24 24">
++                                                        <path stroke-linecap="round" stroke-linejoin="round"
++                                                            stroke-width="2"
++                                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
++                                                        </path>
++                                                    </svg>
++                                                </button>
++                                            </td>
++                                        </tr>
++                                        <tr v-if="filteredPortfolio.length === 0">
++                                            <td colspan="13" class="px-6 py-12 text-center text-slate-500 italic">No
++                                                holdings or watchlist symbols in this market view. Click "+ Add symbol"
++                                                to add one!</td>
++                                        </tr>
++                                    </tbody>
++                                </table>
++                            </div>
+                         </div>
+                     </div>
+-                </section>
+ 
++                </div>
++            </div>
++    </main>
++
++    <!-- AI Chat Drawer Panel -->
++    <div v-if="showChat" class="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm transition-opacity"
++        @click="showChat = false"></div>
++    <div class="fixed right-0 top-0 bottom-0 w-[420px] bg-[#0a0a0a] border-l border-white/5 z-50 flex flex-col shadow-2xl transition-transform duration-300 transform"
++        :class="showChat ? 'translate-x-0' : 'translate-x-full'">
++        <!-- Chat Header -->
++        <div class="p-4 border-b border-white/5 flex items-center justify-between bg-black/40">
++            <div class="flex items-center gap-2">
++                <span class="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.6)]"></span>
++                <h3 class="text-sm font-bold text-white">FinIntelX AI Advisor</h3>
++            </div>
++            <div class="flex items-center gap-3">
++                <select v-model="chatMarket"
++                    class="bg-white/5 border border-white/10 rounded px-2 py-0.5 text-xs text-slate-300 focus:outline-none">
++                    <option value="US">🇺🇸 US</option>
++                    <option value="IN">🇮🇳 India</option>
++                </select>
++                <button @click="showChat = false" class="text-slate-400 hover:text-white transition-colors">
++                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
++                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
++                        </path>
++                    </svg>
++                </button>
++            </div>
++        </div>
++
++        <!-- Chat Messages -->
++        <div ref="chatContainer" class="flex-1 overflow-y-auto p-4 space-y-4">
++            <!-- Welcome message if empty -->
++            <div v-if="chatMessages.length === 0" class="space-y-4">
++                <div class="bg-white/5 border border-white/5 rounded-xl p-4">
++                    <p class="text-xs text-slate-300 leading-relaxed font-light">Welcome! I am your AI financial
++                        assistant, powered by Gemini. Ask me anything about stock data, market analysis, or investment
++                        advice. I will automatically fetch current prices to inform my answers!</p>
++                </div>
++                <div class="space-y-2">
++                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider ml-1">Suggested Prompts</p>
++                    <div class="flex flex-col gap-2">
++                        <button v-for="prompt in suggestedPrompts" :key="prompt" @click="selectSuggestedPrompt(prompt)"
++                            class="text-left text-xs bg-white/5 border border-white/5 rounded-lg px-3 py-2.5 text-slate-300 hover:bg-blue-500/10 hover:text-blue-300 hover:border-blue-500/20 transition-all font-light">{{
++                            prompt }}</button>
++                    </div>
++                </div>
++            </div>
++
++            <!-- Message list -->
++            <div v-for="(msg, idx) in chatMessages" :key="idx" class="flex"
++                :class="msg.role === 'user' ? 'justify-end' : 'justify-start'">
++                <div class="max-w-[85%] rounded-xl px-4 py-3 text-xs leading-relaxed"
++                    :class="msg.role === 'user' ? 'bg-blue-600 text-white font-medium shadow-md shadow-blue-600/10' : 'bg-[#151515] text-slate-200 border border-white/5 font-light'">
++                    <div v-if="msg.role === 'user'">{{ msg.content }}</div>
++                    <div v-else v-html="formatMarkdown(msg.content)"></div>
++                </div>
++            </div>
++
++            <!-- Loading Indicator -->
++            <div v-if="chatLoading" class="flex justify-start">
++                <div class="bg-white/5 border border-white/5 rounded-xl px-4 py-3 flex items-center gap-1.5">
++                    <span class="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce"
++                        style="animation-delay: 0ms"></span>
++                    <span class="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce"
++                        style="animation-delay: 150ms"></span>
++                    <span class="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce"
++                        style="animation-delay: 300ms"></span>
++                </div>
++            </div>
++        </div>
++
++        <!-- Chat Input -->
++        <div class="p-4 border-t border-white/5 bg-black/40 space-y-2">
++            <div class="flex gap-2">
++                <input type="text" v-model="chatInput" @keyup.enter="sendChatMessage"
++                    placeholder="Ask financial advisor..."
++                    class="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50">
++                <button @click="sendChatMessage" :disabled="chatLoading || !chatInput.trim()"
++                    class="px-3 py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-40 text-white rounded-lg text-xs font-bold transition-all">Send</button>
+             </div>
++            <p class="text-[9px] text-slate-500 text-center font-light">FinIntelX AI is a research assistant. Verify all
++                advice independently.</p>
+         </div>
++    </div>
++
++    <!-- Add Symbol Modal -->
++    <div v-if="showAddSymbol" class="fixed inset-0 bg-black/75 flex items-center justify-center z-50"
++        @click.self="showAddSymbol = false">
++        <div class="bg-[#0a0a0a] border border-white/10 rounded-xl w-full max-w-md p-6 shadow-2xl space-y-4">
++            <div class="flex items-center justify-between">
++                <h3 class="text-sm font-bold text-white flex items-center gap-2">
++                    <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
++                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4">
++                        </path>
++                    </svg>
++                    Add Watchlist or Holding
++                </h3>
++                <button @click="showAddSymbol = false" class="text-slate-400 hover:text-white">✕</button>
++            </div>
++
++            <div class="space-y-3">
++                <!-- Search Symbol -->
++                <div>
++                    <label
++                        class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 ml-0.5">Search
++                        Ticker</label>
++                    <div class="relative">
++                        <input type="text" v-model="symbolSearch" @input="searchSymbols"
++                            placeholder="Search symbol (e.g. RELIANCE, TCS, TSLA)"
++                            class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500/50">
++                        <!-- Autocomplete Suggestions -->
++                        <div v-if="symbolResults.length > 0"
++                            class="absolute left-0 right-0 mt-1 max-h-40 overflow-y-auto bg-[#0a0a0a] border border-white/10 rounded-lg shadow-2xl z-50 divide-y divide-white/5">
++                            <div v-for="res in symbolResults" :key="res.symbol" @click="selectSymbol(res)"
++                                class="px-3 py-2 text-xs text-slate-300 hover:bg-blue-500/10 hover:text-blue-300 cursor-pointer flex justify-between items-center">
++                                <span class="font-bold font-mono">{{ res.symbol }}</span>
++                                <span class="text-[10px] text-slate-500 truncate max-w-[200px]">{{ res.name }}</span>
++                            </div>
++                        </div>
++                    </div>
++                </div>
++
++                <!-- Selected Info -->
++                <div v-if="addForm.symbol"
++                    class="bg-blue-500/5 border border-blue-500/10 rounded-lg p-3 text-xs flex justify-between items-center">
++                    <div>
++                        <p class="font-bold text-white">Selected: {{ addForm.symbol }}</p>
++                        <p class="text-[10px] text-slate-400 mt-0.5">{{ addForm.companyName }}</p>
++                    </div>
++                    <span
++                        class="px-2 py-0.5 bg-blue-500/10 text-blue-400 rounded text-[9px] font-bold uppercase tracking-wider">{{
++                        addForm.market === 'US' ? 'US Stock' : 'India Stock' }}</span>
++                </div>
++
++                <!-- Toggle Watchlist vs Holding -->
++                <div>
++                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 ml-0.5">Entry
++                        Type</label>
++                    <div class="flex bg-white/5 border border-white/5 rounded-lg p-0.5">
++                        <button type="button" @click="addForm.isHolding = false"
++                            class="flex-1 py-1.5 rounded text-xs font-semibold text-center transition-colors"
++                            :class="!addForm.isHolding ? 'bg-white/10 text-white' : 'text-slate-400 hover:text-white'">Watchlist
++                            Only</button>
++                        <button type="button" @click="addForm.isHolding = true"
++                            class="flex-1 py-1.5 rounded text-xs font-semibold text-center transition-colors"
++                            :class="addForm.isHolding ? 'bg-white/10 text-white' : 'text-slate-400 hover:text-white'">Add
++                            Holding (Buy Info)</button>
++                    </div>
++                </div>
++
++                <!-- Purchase details for Holdings -->
++                <div v-if="addForm.isHolding"
++                    class="grid grid-cols-2 gap-3 border-t border-white/5 pt-3 animate-fadeIn">
++                    <div>
++                        <label
++                            class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 ml-0.5">Shares</label>
++                        <input type="number" v-model="addForm.shares" step="any" min="0.0001" placeholder="e.g. 10"
++                            class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500/50">
++                    </div>
++                    <div>
++                        <label
++                            class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 ml-0.5">Buy
++                            Price ({{ addForm.market === 'US' ? '$' : '₹' }})</label>
++                        <input type="number" v-model="addForm.buyPrice" step="any" min="0.01" placeholder="e.g. 150.25"
++                            class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500/50">
++                    </div>
++                    <div class="col-span-2">
++                        <label
++                            class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 ml-0.5">Purchase
++                            Date</label>
++                        <input type="date" v-model="addForm.buyDate"
++                            class="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500/50">
++                    </div>
++                </div>
++            </div>
++
++            <button @click="submitAddSymbol"
++                :disabled="!addForm.symbol || (addForm.isHolding && (!addForm.shares || !addForm.buyPrice))"
++                class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-40 text-white rounded-lg text-xs font-bold transition-all uppercase tracking-wider">
++                Add to Portfolio
++            </button>
++        </div>
++    </div>
++    </div>
+     </main>
+ 
+     <script>
+@@ -472,24 +1260,17 @@
+                 let name = window.USER_DATA?.name || '';
+                 let email = window.USER_DATA?.email || '';
+                 let provider = window.USER_DATA?.provider || '';
+-                
++
+                 if (!name || name.startsWith("{{")) {
+                     if (localStorage.getItem("finintelx_logged_in") === "true") {
+                         name = localStorage.getItem("finintelx_user_name") || "Rohit Belagali";
+                         email = localStorage.getItem("finintelx_user_email") || "rohit.belagali@agforge.com";
+                         provider = "local";
+                     } else {
+-                        const currentPath = window.location.pathname;
+-                        let loginUrl = "login.html";
+-                        if (currentPath.includes("/")) {
+-                            const parts = currentPath.split("/");
+-                            parts[parts.length - 1] = "login.html";
+-                            loginUrl = parts.join("/");
+-                        }
+-                        window.location.href = loginUrl;
++                        window.location.href = "/login";
+                     }
+                 }
+-                
++
+                 return {
+                     userName: name,
+                     userEmail: email,
+@@ -520,7 +1301,42 @@
+                     },
+                     tasks: [],
+                     pollInterval: null,
+-                    isLogsExpanded: false
++                    isLogsExpanded: false,
++
++                    // Chat & Portfolio View states
++                    activeTab: 'mission',
++                    showChat: false,
++                    chatMessages: [],
++                    chatInput: '',
++                    chatLoading: false,
++                    chatMarket: 'US',
++                    portfolioMarket: 'ALL',
++                    portfolioFilter: 'all',
++                    holdings: [],
++                    watchlist: [],
++                    portfolioLoading: false,
++                    showAddSymbol: false,
++                    symbolSearch: '',
++                    symbolResults: [],
++                    addForm: { symbol: '', companyName: '', market: 'US', isHolding: false, shares: null, buyPrice: null, buyDate: '' },
++                    marketIndices: [],
++                    portfolioRefreshInterval: null,
++                    portfolioSortBy: 'symbol',
++                    portfolioSortDir: 'asc',
++                    suggestedPromptsList: {
++                        US: [
++                            "Should I buy Tesla stock now?",
++                            "I have $500, where do you suggest me to invest?",
++                            "Explain Apple's gross margin trends",
++                            "What are the top tech stock valuation multiples?"
++                        ],
++                        IN: [
++                            "Is Reliance stock a good buy now?",
++                            "I have ₹50,000, where should I invest in Indian market?",
++                            "Compare TCS vs Infosys valuation",
++                            "Explain Adani Enterprises catalysts and growth story"
++                        ]
++                    }
+                 }
+             },
+             computed: {
+@@ -528,12 +1344,108 @@
+                 userInitial() { return this.userName ? this.userName.charAt(0).toUpperCase() : 'U'; },
+                 isGithubUser() { return this.userProvider === 'github' || this.userEmail.startsWith('github:'); },
+                 activeTasks() { return this.tasks.filter(t => t.status === 'running' || t.status === 'pending'); },
+-                completedTasks() { return this.tasks.filter(t => t.status === 'completed' || t.status === 'failed').reverse(); }
++                completedTasks() { return this.tasks.filter(t => t.status === 'completed' || t.status === 'failed').reverse(); },
++                portfolioCurrency() {
++                    return this.portfolioMarket === 'IN' ? '₹' : '$';
++                },
++                suggestedPrompts() {
++                    return this.suggestedPromptsList[this.chatMarket] || this.suggestedPromptsList['US'];
++                },
++                filteredPortfolio() {
++                    let combined = [];
++
++                    if (this.portfolioFilter !== 'watchlist') {
++                        this.holdings.forEach(h => {
++                            combined.push({
++                                ...h,
++                                isHolding: true
++                            });
++                        });
++                    }
++
++                    if (this.portfolioFilter !== 'holdings') {
++                        this.watchlist.forEach(w => {
++                            combined.push({
++                                ...w,
++                                isHolding: false,
++                                shares: 0,
++                                buy_price: 0,
++                                buy_date: null
++                            });
++                        });
++                    }
++
++                    if (this.portfolioMarket !== 'ALL') {
++                        combined = combined.filter(item => item.market === this.portfolioMarket);
++                    }
++
++                    combined.sort((a, b) => {
++                        let valA, valB;
++                        if (this.portfolioSortBy === 'symbol') {
++                            valA = a.symbol;
++                            valB = b.symbol;
++                        } else if (this.portfolioSortBy === 'price') {
++                            valA = a.live.price || 0;
++                            valB = b.live.price || 0;
++                        } else if (this.portfolioSortBy === 'change') {
++                            valA = a.live.change || 0;
++                            valB = b.live.change || 0;
++                        } else if (this.portfolioSortBy === 'changePercent') {
++                            valA = a.live.changePercent || 0;
++                            valB = b.live.changePercent || 0;
++                        }
++
++                        if (valA < valB) return this.portfolioSortDir === 'asc' ? -1 : 1;
++                        if (valA > valB) return this.portfolioSortDir === 'asc' ? 1 : -1;
++                        return 0;
++                    });
++
++                    return combined;
++                },
++                portfolioStats() {
++                    let totalInvested = 0;
++                    let currentValue = 0;
++                    let todayPnL = 0;
++
++                    this.holdings.forEach(h => {
++                        if (this.portfolioMarket !== 'ALL' && h.market !== this.portfolioMarket) return;
++
++                        const cost = h.shares * h.buy_price;
++                        const value = h.shares * (h.live?.price || 0);
++                        const dailyChange = h.shares * (h.live?.change || 0);
++
++                        totalInvested += cost;
++                        currentValue += value;
++                        todayPnL += dailyChange;
++                    });
++
++                    const totalPnL = currentValue - totalInvested;
++                    const totalPnLPercent = totalInvested > 0 ? (totalPnL / totalInvested) * 100 : 0;
++
++                    return {
++                        totalInvested,
++                        currentValue,
++                        totalPnL,
++                        totalPnLPercent,
++                        todayPnL
++                    };
++                }
+             },
+             mounted() {
+                 document.addEventListener('click', () => { this.showUserMenu = false; });
+                 this.pollInterval = setInterval(this.pollTasks, 1000);
+                 this.loadHistory();
++
++                this.fetchPortfolio();
++                this.fetchWatchlist();
++                this.fetchIndices();
++                this.portfolioRefreshInterval = setInterval(() => {
++                    if (this.activeTab === 'portfolio') {
++                        this.fetchPortfolio();
++                        this.fetchWatchlist();
++                        this.fetchIndices();
++                    }
++                }, 30000);
+             },
+             methods: {
+                 async loadHistory() {
+@@ -564,7 +1476,7 @@
+                     } catch (e) {
+                         console.warn('Failed to load history from backend, falling back to local history.', e);
+                     }
+-                    
++
+                     const localHistory = JSON.parse(localStorage.getItem("finintelx_history") || "[]");
+                     this.tasks = localHistory;
+                 },
+@@ -623,11 +1535,11 @@
+                     this.tasks.unshift(newTask);
+                     const peers = this.form.peers_str.split(' ').map(s => s.trim()).filter(s => s);
+                     const payload = { ...this.form, peers: peers };
+-                    
++
+                     this.form.ticker = '';
+                     this.form.company_name = '';
+                     this.form.peers_str = '';
+-                    
++
+                     try {
+                         const response = await fetch('/api/run', {
+                             method: 'POST',
+@@ -645,12 +1557,12 @@
+                     } catch (e) {
+                         console.warn("Backend /api/run failed or unreachable. Starting client-side mock simulation.", e);
+                     }
+-                    
++
+                     // Client-side mock simulation!
+                     newTask.status = 'running';
+                     newTask.logs.push('Client-side mock simulation started.');
+                     this.saveLocalHistory();
+-                    
++
+                     const simulatedStages = [
+                         { progress: 10, stage: 'Data Acquisition...', log: 'Starting analysis pipeline...' },
+                         { progress: 20, stage: 'Data Acquisition...', log: 'Acquiring financial data for ticker: ' + ticker },
+@@ -660,7 +1572,7 @@
+                         { progress: 90, stage: 'Report Compilation...', log: 'Compiling HTML and PDF reports...' },
+                         { progress: 100, stage: 'Analysis Completed', log: 'Pipeline completed successfully!' }
+                     ];
+-                    
++
+                     let stageIdx = 0;
+                     const interval = setInterval(() => {
+                         if (stageIdx < simulatedStages.length) {
+@@ -735,7 +1647,7 @@
+                     localStorage.removeItem("finintelx_logged_in");
+                     localStorage.removeItem("finintelx_user_email");
+                     localStorage.removeItem("finintelx_user_name");
+-                    window.location.href = 'login.html';
++                    window.location.href = "/login";
+                 },
+                 switchAccount() { this.logout(); },
+                 async changePassword() {
+@@ -771,19 +1683,17 @@
+                 async openReport(task, type) {
+                     const ticker = task.ticker;
+                     const companyName = task.company_name || task.company || ticker;
+-                    
++
+                     if (type === 'html') {
+-                        try {
+-                            const testUrl = '/output/' + ticker + '/report/' + task.result.html[0];
+-                            const resp = await fetch(testUrl, { method: 'HEAD' });
+-                            if (resp.ok) {
+-                                window.open(testUrl, '_blank');
+-                                return;
+-                            }
+-                        } catch (e) {
+-                            console.warn("Backend report not reachable. Loading template client-side.", e);
++                        const testUrl = '/output/' + ticker + '/report/' + (task.result?.html?.[0] || `Professional_Equity_Report_${ticker}.html`);
++
++                        if (window.location.protocol === 'file:') {
++                            alert("⚠️ You are viewing index.html directly from a local file. The backend server is required to view live dynamic reports.\n\nPlease start the server with 'python run_web_app.py' and open http://localhost:8001 in your browser.");
++                        } else {
++                            window.open(testUrl + '?t=' + new Date().getTime(), '_blank');
++                            return;
+                         }
+-                        
++
+                         try {
+                             const templateUrl = 'static/Professional_Equity_Report_Template.html';
+                             const resp = await fetch(templateUrl);
+@@ -792,7 +1702,7 @@
+                                 templateHtml = templateHtml.replace(/AAPL/g, ticker);
+                                 templateHtml = templateHtml.replace(/Apple Inc\./g, companyName);
+                                 templateHtml = templateHtml.replace(/Apple/g, companyName.split(" ")[0]);
+-                                
++
+                                 const blob = new Blob([templateHtml], { type: 'text/html' });
+                                 const url = URL.createObjectURL(blob);
+                                 window.open(url, '_blank');
+@@ -801,28 +1711,245 @@
+                         } catch (err) {
+                             console.error("Failed to load template HTML", err);
+                         }
+-                        
++
+                         const fallbackHtml = `<html><body style="background:#0a0a0a; color:white; font-family:sans-serif; padding:40px;"><h1>${companyName} (${ticker}) Report</h1><p>Preview mode not supported directly from local file protocol for security reasons.</p></body></html>`;
+                         const blob = new Blob([fallbackHtml], { type: 'text/html' });
+                         const url = URL.createObjectURL(blob);
+                         window.open(url, '_blank');
+                     } else if (type === 'pdf') {
+-                        try {
+-                            const testUrl = '/output/' + ticker + '/report/' + task.result.pdf[0];
+-                            const resp = await fetch(testUrl, { method: 'HEAD' });
+-                            if (resp.ok) {
+-                                window.open(testUrl, '_blank');
+-                                return;
+-                            }
+-                        } catch (e) {
+-                            console.warn("Backend PDF not reachable.", e);
++                        const testUrl = '/output/' + ticker + '/report/' + (task.result?.pdf?.[0] || `Professional_Equity_Report_${ticker}.pdf`);
++
++                        if (window.location.protocol === 'file:') {
++                            alert("⚠️ You are viewing index.html directly from a local file. The backend server is required to view live dynamic reports.\n\nPlease start the server with 'python run_web_app.py' and open http://localhost:8001 in your browser.");
++                            window.open('report/NVDA_report.pdf', '_blank');
++                        } else {
++                            window.open(testUrl + '?t=' + new Date().getTime(), '_blank');
++                        }
++                    }
++                },
++                // --- Portfolio & Watchlist Methods ---
++                async fetchPortfolio() {
++                    try {
++                        const resp = await fetch('/api/portfolio');
++                        if (resp.ok) {
++                            this.holdings = await resp.json();
+                         }
+-                        window.open('report/NVDA_report.pdf', '_blank');
++                    } catch (e) {
++                        console.error("Failed to fetch portfolio:", e);
++                    }
++                },
++                async fetchWatchlist() {
++                    try {
++                        const resp = await fetch('/api/watchlist');
++                        if (resp.ok) {
++                            const data = await resp.json();
++                            this.watchlist = data.map(item => ({
++                                id: item.id,
++                                symbol: item.symbol,
++                                company_name: item.name,
++                                market: item.symbol.endsWith('.NS') || item.symbol.endsWith('.BO') ? 'IN' : 'US',
++                                live: item
++                            }));
++                        }
++                    } catch (e) {
++                        console.error("Failed to fetch watchlist:", e);
++                    }
++                },
++                async fetchIndices() {
++                    try {
++                        const market = this.portfolioMarket === 'ALL' ? 'US' : this.portfolioMarket;
++                        const resp = await fetch(`/api/market/indices?market=${market}`);
++                        if (resp.ok) {
++                            this.marketIndices = await resp.json();
++                        }
++                    } catch (e) {
++                        console.error("Failed to fetch indices:", e);
++                    }
++                },
++                getSparklinePoints(sparkline, width, height) {
++                    if (!sparkline || sparkline.length < 2) return "";
++                    const min = Math.min(...sparkline);
++                    const max = Math.max(...sparkline);
++                    const range = max - min || 1;
++                    const stepX = width / (sparkline.length - 1);
++
++                    return sparkline.map((val, idx) => {
++                        const x = idx * stepX;
++                        const y = height - ((val - min) / range) * height;
++                        return `${x.toFixed(1)},${y.toFixed(1)}`;
++                    }).join(" ");
++                },
++                sortPortfolio(field) {
++                    if (this.portfolioSortBy === field) {
++                        this.portfolioSortDir = this.portfolioSortDir === 'asc' ? 'desc' : 'asc';
++                    } else {
++                        this.portfolioSortBy = field;
++                        this.portfolioSortDir = 'asc';
+                     }
++                },
++                getSortArrow(field) {
++                    if (this.portfolioSortBy !== field) return "↕";
++                    return this.portfolioSortDir === 'asc' ? "↑" : "↓";
++                },
++                openAddSymbolModal() {
++                    this.symbolSearch = '';
++                    this.symbolResults = [];
++                    this.addForm = { symbol: '', companyName: '', market: 'US', isHolding: false, shares: null, buyPrice: null, buyDate: new Date().toISOString().split('T')[0] };
++                    this.showAddSymbol = true;
++                },
++                async searchSymbols() {
++                    const query = this.symbolSearch.trim();
++                    if (query.length < 2) {
++                        this.symbolResults = [];
++                        return;
++                    }
++                    try {
++                        const market = this.portfolioMarket === 'ALL' ? 'US' : this.portfolioMarket;
++                        const resp = await fetch(`/api/market/search?q=${encodeURIComponent(query)}&market=${market}`);
++                        if (resp.ok) {
++                            this.symbolResults = await resp.json();
++                        }
++                    } catch (e) {
++                        console.error("Search failed:", e);
++                    }
++                },
++                selectSymbol(res) {
++                    this.addForm.symbol = res.symbol;
++                    this.addForm.companyName = res.name;
++                    this.addForm.market = res.symbol.endsWith('.NS') || res.symbol.endsWith('.BO') || this.portfolioMarket === 'IN' ? 'IN' : 'US';
++                    this.symbolResults = [];
++                    this.symbolSearch = '';
++                },
++                async submitAddSymbol() {
++                    if (!this.addForm.symbol) return;
++
++                    try {
++                        let endpoint = '/api/watchlist';
++                        let payload = {
++                            symbol: this.addForm.symbol,
++                            market: this.addForm.market
++                        };
++
++                        if (this.addForm.isHolding) {
++                            endpoint = '/api/portfolio';
++                            payload = {
++                                symbol: this.addForm.symbol,
++                                shares: parseFloat(this.addForm.shares),
++                                buy_price: parseFloat(this.addForm.buyPrice),
++                                buy_date: this.addForm.buyDate,
++                                market: this.addForm.market,
++                                company_name: this.addForm.companyName
++                            };
++                        }
++
++                        const resp = await fetch(endpoint, {
++                            method: 'POST',
++                            headers: { 'Content-Type': 'application/json' },
++                            body: JSON.stringify(payload)
++                        });
++
++                        if (resp.ok) {
++                            this.showAddSymbol = false;
++                            this.fetchPortfolio();
++                            this.fetchWatchlist();
++                        } else {
++                            const err = await resp.json();
++                            alert(`Error adding symbol: ${err.detail || 'Request failed'}`);
++                        }
++                    } catch (e) {
++                        console.error("Add symbol submit error:", e);
++                    }
++                },
++                async deletePortfolioItem(item) {
++                    if (!confirm(`Remove ${item.symbol} from your portfolio?`)) return;
++                    try {
++                        const endpoint = item.shares > 0 ? `/api/portfolio/${item.id}` : `/api/watchlist/${item.id}`;
++                        const resp = await fetch(endpoint, { method: 'DELETE' });
++                        if (resp.ok) {
++                            this.fetchPortfolio();
++                            this.fetchWatchlist();
++                        }
++                    } catch (e) {
++                        console.error("Delete failed:", e);
++                    }
++                },
++
++                // --- Chat Methods ---
++                selectSuggestedPrompt(prompt) {
++                    this.chatInput = prompt;
++                    this.sendChatMessage();
++                },
++                async sendChatMessage() {
++                    const message = this.chatInput.trim();
++                    if (!message || this.chatLoading) return;
++
++                    this.chatMessages.push({ role: 'user', content: message });
++                    this.chatInput = '';
++                    this.chatLoading = true;
++
++                    this.$nextTick(() => {
++                        this.scrollChatToBottom();
++                    });
++
++                    try {
++                        const history = this.chatMessages.slice(0, -1).map(m => ({ role: m.role, content: m.content }));
++                        const encodedHistory = encodeURIComponent(JSON.stringify(history));
++                        const encodedMessage = encodeURIComponent(message);
++                        const market = this.chatMarket;
++
++                        const sseUrl = `/api/chat/stream?message=${encodedMessage}&history_json=${encodedHistory}&market=${market}`;
++                        const eventSource = new EventSource(sseUrl);
++
++                        let assistantMessage = { role: 'assistant', content: '' };
++                        this.chatMessages.push(assistantMessage);
++
++                        eventSource.onmessage = (event) => {
++                            try {
++                                const data = JSON.parse(event.data);
++                                assistantMessage.content += data.content;
++                                this.scrollChatToBottom();
++                            } catch (e) {
++                                console.error("Error parsing chat chunk:", e);
++                            }
++                        };
++
++                        eventSource.onerror = (err) => {
++                            eventSource.close();
++                            this.chatLoading = false;
++
++                            if (!assistantMessage.content) {
++                                assistantMessage.content = "I encountered an error connecting to Gemini. Please try again.";
++                            }
++                        };
++                    } catch (e) {
++                        console.error("Failed to send message:", e);
++                        this.chatMessages.push({ role: 'assistant', content: "An unexpected error occurred." });
++                        this.chatLoading = false;
++                    }
++                },
++                scrollChatToBottom() {
++                    const el = this.$refs.chatContainer;
++                    if (el) {
++                        el.scrollTop = el.scrollHeight;
++                    }
++                },
++                formatMarkdown(text) {
++                    if (!text) return "";
++                    let formatted = text
++                        .replace(/&/g, "&amp;")
++                        .replace(/</g, "&lt;")
++                        .replace(/>/g, "&gt;");
++
++                    formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
++                    formatted = formatted.replace(/^\s*-\s+(.*?)$/gm, '<li class="ml-4 list-disc">$1</li>');
++                    formatted = formatted.replace(/\n/g, '<br>');
++
++                    return formatted;
+                 }
+             }
+         }).mount('#app');
+     </script>
+ </body>
+ {% endraw %}
+-</html>
++
++</html>
+\ No newline at end of file

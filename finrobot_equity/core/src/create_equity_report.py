@@ -47,44 +47,73 @@ def load_credit_cashflow_metrics_from_csv(file_path: str) -> pd.DataFrame:
     try:
         df = pd.read_csv(file_path)
 
-        # Define the mapping from CSV columns to the desired metric names
-        metric_mapping = {
-            'debtEquityRatio': 'Debt/Equity',
-            'debtRatio': 'Debt/Assets',
-            'interestCoverage': 'EBITDA/Int Exp',
-            'netProfitMargin': 'Net Margin',
-            'currentRatio': 'Current Ratio',
-            'cashFlowToDebtRatio': 'Cash Flow to Debt Ratio'
-        }
+        # Dynamic column resolution to support standard vs stable FMP endpoints
+        col_debt_equity = 'debtToEquityRatio' if 'debtToEquityRatio' in df.columns else ('debtEquityRatio' if 'debtEquityRatio' in df.columns else 'debtEquityRatio')
+        col_debt_assets = 'debtToAssetsRatio' if 'debtToAssetsRatio' in df.columns else ('debtRatio' if 'debtRatio' in df.columns else 'debtRatio')
+        col_interest_cov = 'interestCoverageRatio' if 'interestCoverageRatio' in df.columns else ('interestCoverage' if 'interestCoverage' in df.columns else 'interestCoverage')
+        col_net_margin = 'netProfitMargin'
+        col_current_ratio = 'currentRatio'
+        col_cf_debt = 'operatingCashFlowCoverageRatio' if 'operatingCashFlowCoverageRatio' in df.columns else ('cashFlowToDebtRatio' if 'cashFlowToDebtRatio' in df.columns else 'cashFlowToDebtRatio')
 
         # Check if necessary columns exist
-        if 'calendarYear' not in df.columns or not all(key in df.columns for key in metric_mapping.keys()):
-            print("Warning: The ratios CSV file is missing required columns (e.g., 'calendarYear' or ratio columns).")
+        if 'calendarYear' not in df.columns:
+            print("Warning: The ratios CSV file is missing required 'calendarYear' column.")
             return pd.DataFrame()
 
         # Reverse the DataFrame to have the latest year last
         df = df.sort_values(by='calendarYear').reset_index(drop=True)
 
         # Initialize the dictionary to hold the formatted data
-        credit_metrics_data = {'metrics': list(metric_mapping.values())}
+        credit_metrics_data = {
+            'metrics': [
+                'Debt/Equity',
+                'Debt/Assets',
+                'EBITDA/Int Exp',
+                'Net Margin',
+                'Current Ratio',
+                'Cash Flow to Debt Ratio'
+            ]
+        }
 
         year_cols = sorted(df['calendarYear'].unique())
 
         for year in year_cols:
-            year_str = f"{year}A" # Append 'A' to match existing format
+            year_str = f"{int(year)}A" # Append 'A' to match existing format
             credit_metrics_data[year_str] = []
             year_data = df[df['calendarYear'] == year].iloc[0]
 
-            # Populate the data for the year based on the mapping
-            credit_metrics_data[year_str].append(f"{year_data['debtEquityRatio']:.2f}" if pd.notna(year_data['debtEquityRatio']) else "N/A")
-            credit_metrics_data[year_str].append(f"{year_data['debtRatio']:.2f}" if pd.notna(year_data['debtRatio']) else "N/A")
-            credit_metrics_data[year_str].append(f"{year_data['interestCoverage']:.1f}x" if pd.notna(year_data['interestCoverage']) else "N/A")
-            credit_metrics_data[year_str].append(f"{year_data['netProfitMargin']*100:.1f}%" if pd.notna(year_data['netProfitMargin']) else "N/A")
-            credit_metrics_data[year_str].append(f"{year_data['currentRatio']:.1f}" if pd.notna(year_data['currentRatio']) else "N/A")
-            credit_metrics_data[year_str].append(f"{year_data['cashFlowToDebtRatio']:.2f}" if pd.notna(year_data['cashFlowToDebtRatio']) else "N/A")
+            # Helper to safely format values
+            def _get_val(col, fmt_type):
+                if col in year_data and pd.notna(year_data[col]):
+                    val = year_data[col]
+                    try:
+                        val = float(val)
+                    except (ValueError, TypeError):
+                        return str(val)
+                    if fmt_type == 'percent':
+                        # If net profit margin is already represented as a percentage (e.g. 26.9 instead of 0.269)
+                        if val > 1.0 or val < -1.0:
+                            return f"{val:.1f}%"
+                        return f"{val * 100:.1f}%"
+                    elif fmt_type == 'x':
+                        return f"{val:.1f}x"
+                    else:
+                        return f"{val:.2f}"
+                return "N/A"
 
+            # Populate metrics in order
+            credit_metrics_data[year_str].append(_get_val(col_debt_equity, 'num'))
+            credit_metrics_data[year_str].append(_get_val(col_debt_assets, 'num'))
+            credit_metrics_data[year_str].append(_get_val(col_interest_cov, 'x'))
+            credit_metrics_data[year_str].append(_get_val(col_net_margin, 'percent'))
+            credit_metrics_data[year_str].append(_get_val(col_current_ratio, 'num'))
+            credit_metrics_data[year_str].append(_get_val(col_cf_debt, 'num'))
 
         return pd.DataFrame(credit_metrics_data)
+
+    except Exception as e:
+        print(f"An error occurred while loading credit metrics from CSV: {e}")
+        return pd.DataFrame()
 
     except Exception as e:
         print(f"An error occurred while loading credit metrics from CSV: {e}")
@@ -192,7 +221,8 @@ def validate_and_fix_text_content(text_content: str, text_type: str, company_nam
 
 def regenerate_text_if_needed(text_content: str, text_type: str, company_name: str, company_ticker: str, 
                              analysis_df: pd.DataFrame, peer_ebitda_df: pd.DataFrame, 
-                             peer_ev_ebitda_df: pd.DataFrame, api_key: str = None) -> str:
+                             peer_ev_ebitda_df: pd.DataFrame, api_key: str = None,
+                             base_url: str = None, model: str = None) -> str:
     """Generate text content using AI, calling the single unified function."""
     
     # This function now handles all text types through the same logic if regeneration is enabled.
@@ -212,7 +242,9 @@ def regenerate_text_if_needed(text_content: str, text_type: str, company_name: s
                 text_type, 
                 api_key, 
                 company_name, 
-                company_ticker
+                company_ticker,
+                base_url=base_url,
+                model=model
             )
             
             # Basic validation of the generated content
@@ -231,7 +263,7 @@ def regenerate_text_if_needed(text_content: str, text_type: str, company_name: s
     return validate_and_fix_text_content(text_content, text_type, company_name, company_ticker)
 
 
-def process_text_content(args, analysis_df, peer_ebitda_df, peer_ev_ebitda_df, openai_api_key):
+def process_text_content(args, analysis_df, peer_ebitda_df, peer_ev_ebitda_df, openai_api_key, base_url=None, model=None):
     """Process all text content with enhanced AI generation for competitor analysis and takeaways."""
     
     print("📖 Loading and processing text content...")
@@ -270,7 +302,8 @@ def process_text_content(args, analysis_df, peer_ebitda_df, peer_ev_ebitda_df, o
                 print(f"⚠️ Detected CSV data in {text_type}, forcing AI regeneration...")
                 processed_texts[text_type] = regenerate_text_if_needed(
                     raw_content or "", text_type, args.company_name, args.company_ticker,
-                    analysis_df, peer_ebitda_df, peer_ev_ebitda_df, openai_api_key
+                    analysis_df, peer_ebitda_df, peer_ev_ebitda_df, openai_api_key,
+                    base_url=base_url, model=model
                 )
             # If no API key, provide a fallback
             elif is_csv_data:
@@ -284,7 +317,8 @@ def process_text_content(args, analysis_df, peer_ebitda_df, peer_ev_ebitda_df, o
                 if args.enable_text_regeneration and openai_api_key:
                     processed_texts[text_type] = regenerate_text_if_needed(
                         raw_content or "", text_type, args.company_name, args.company_ticker,
-                        analysis_df, peer_ebitda_df, peer_ev_ebitda_df, openai_api_key
+                        analysis_df, peer_ebitda_df, peer_ev_ebitda_df, openai_api_key,
+                        base_url=base_url, model=model
                     )
                 else:
                     processed_texts[text_type] = validate_and_fix_text_content(
@@ -295,7 +329,8 @@ def process_text_content(args, analysis_df, peer_ebitda_df, peer_ev_ebitda_df, o
             if args.enable_text_regeneration and openai_api_key:
                 processed_texts[text_type] = regenerate_text_if_needed(
                     raw_content or "", text_type, args.company_name, args.company_ticker,
-                    analysis_df, peer_ebitda_df, peer_ev_ebitda_df, openai_api_key
+                    analysis_df, peer_ebitda_df, peer_ev_ebitda_df, openai_api_key,
+                    base_url=base_url, model=model
                 )
             else:
                 processed_texts[text_type] = validate_and_fix_text_content(
@@ -378,11 +413,19 @@ def main():
     os.makedirs(output_dir, exist_ok=True)
     print(f"HTML reports will be saved to: {output_dir}")
 
-    # --- Load configuration and API key ---
     openai_api_key = None
+    openai_base_url = None
+    openai_model = None
     try:
         config = load_config(args.config_file)
         fmp_api_key = get_api_key(config, "API_KEYS", "fmp_api_key")
+        
+        try:
+            openai_base_url = config.get("API_KEYS", "openai_base_url", fallback=None)
+            openai_model = config.get("API_KEYS", "openai_model", fallback=None)
+        except Exception:
+            pass
+            
         if args.enable_text_regeneration:
             try:
                 openai_api_key = get_api_key(config, "API_KEYS", "openai_api_key")
@@ -465,7 +508,7 @@ def main():
     peer_ev_ebitda_df = load_analysis_csv(args.peer_ev_ebitda_csv) if args.peer_ev_ebitda_csv else pd.DataFrame()
 
     # Process text content with AI enhancement
-    processed_texts = process_text_content(args, analysis_df, peer_ebitda_df, peer_ev_ebitda_df, openai_api_key)
+    processed_texts = process_text_content(args, analysis_df, peer_ebitda_df, peer_ev_ebitda_df, openai_api_key, base_url=openai_base_url, model=openai_model)
     
     # Fix stale dates in cached text (e.g. "June 2024" → actual report date)
     import re as _re

@@ -311,81 +311,168 @@ def execute_analysis_pipeline(task_id: str, req: AnalysisRequest):
     except Exception as e:
         logger.warning(f"Failed to update report status: {e}")
         
-    # Phase 1: Data acquisition (10%)
-    append_task_log(task_id, "Starting analysis pipeline...")
-    time.sleep(1)
-    append_task_log(task_id, f"Acquiring financial data for ticker: {req.ticker}")
-    append_task_log(task_id, f"Retrieving historical income statements, balance sheets, and cash flow statements...")
-    time.sleep(1)
+    config_path = os.path.join(CONFIG_DIR, "config.ini")
     
-    # Phase 2: Financial analysis (35%)
-    append_task_log(task_id, f"Running: generate_financial_analysis.py --company-ticker {req.ticker}")
-    append_task_log(task_id, "Processing metrics: revenue growth rate, gross margins, EBITDA margins...")
-    append_task_log(task_id, "Financial metrics and forecasts generated successfully.")
-    time.sleep(1)
-    
-    # Phase 3: AI reasoning & Valuation (50%)
-    append_task_log(task_id, f"Running: create_equity_report.py --company-ticker {req.ticker} --company-name {req.company_name}")
-    append_task_log(task_id, "Executing DCF model and calculating Weighted Average Cost of Capital (WACC)...")
-    append_task_log(task_id, "Performing peer group multiples comparison (EV/EBITDA, P/E ratio)...")
-    time.sleep(1)
-    
-    # Phase 4: Report compilation & PDF generation (75% / 90%)
-    append_task_log(task_id, "Generating professional text segments with AI model...")
-    append_task_log(task_id, "Compiling HTML and PDF reports...")
-    
-    # Create the customized files
-    report_output_dir = os.path.join(OUTPUT_DIR, req.ticker, "report")
-    os.makedirs(report_output_dir, exist_ok=True)
-    
-    # Customize the HTML report
-    template_path = os.path.join(PROJECT_ROOT, "web_app", "static", "Professional_Equity_Report_Template.html")
-    custom_html_name = f"Professional_Equity_Report_{req.ticker}.html"
-    custom_html_path = os.path.join(report_output_dir, custom_html_name)
-    
-    if os.path.exists(template_path):
+    # Optional: Update API keys in config.ini if provided via request
+    if (req.fmp_api_key and req.fmp_api_key.strip() and not req.fmp_api_key.startswith("YOUR_")) or \
+       (req.openai_api_key and req.openai_api_key.strip() and not req.openai_api_key.startswith("YOUR_")):
         try:
-            with open(template_path, "r", encoding="utf-8") as f:
-                content = f.read()
-            # Replace AAPL -> req.ticker, Apple Inc. -> req.company_name
-            content = content.replace("AAPL", req.ticker)
-            content = content.replace("Apple Inc.", req.company_name)
-            # Replace case insensitive or general references
-            content = content.replace("Apple", req.company_name.split()[0]) # use first word
+            import configparser
+            config = configparser.ConfigParser()
+            if os.path.exists(config_path):
+                config.read(config_path)
+            else:
+                config["API_KEYS"] = {}
             
-            with open(custom_html_path, "w", encoding="utf-8") as f:
-                f.write(content)
+            if "API_KEYS" not in config:
+                config["API_KEYS"] = {}
+                
+            if req.fmp_api_key and req.fmp_api_key.strip() and not req.fmp_api_key.startswith("YOUR_"):
+                config["API_KEYS"]["fmp_api_key"] = req.fmp_api_key.strip()
+            if req.openai_api_key and req.openai_api_key.strip() and not req.openai_api_key.startswith("YOUR_"):
+                config["API_KEYS"]["openai_api_key"] = req.openai_api_key.strip()
+                
+            with open(config_path, "w", encoding="utf-8") as f:
+                config.write(f)
+            logger.info("Updated config.ini with keys provided in analysis request")
         except Exception as e:
-            logger.error(f"Error customizing HTML report: {e}")
-            shutil.copy(template_path, custom_html_path)
-    else:
-        # Fallback if template doesn't exist
-        with open(custom_html_path, "w", encoding="utf-8") as f:
-            f.write(f"<html><body><h1>Equity Research Report for {req.company_name} ({req.ticker})</h1></body></html>")
-            
-    # Copy a sample PDF report if exists
-    custom_pdf_name = f"Professional_Equity_Report_{req.ticker}.pdf"
-    custom_pdf_path = os.path.join(report_output_dir, custom_pdf_name)
-    sample_pdf_sources = [
-        os.path.join(os.path.dirname(PROJECT_ROOT), "report", "NVDA_report.pdf"),
-        os.path.join(os.path.dirname(PROJECT_ROOT), "report", "Microsoft_Annual_Report_2023.pdf")
-    ]
-    pdf_copied = False
-    for sample_src in sample_pdf_sources:
-        if os.path.exists(sample_src):
-            try:
-                shutil.copy(sample_src, custom_pdf_path)
-                pdf_copied = True
-                break
-            except Exception:
-                pass
-    if not pdf_copied:
-        # Create a dummy PDF if no source exists
-        with open(custom_pdf_path, "wb") as f:
-            f.write(b"%PDF-1.4 dummy pdf content")
-            
-    time.sleep(1)
+            logger.warning(f"Failed to update config.ini with request keys: {e}")
+
+    python_exe = sys.executable
+    analysis_script = os.path.join(PROJECT_ROOT, "core", "src", "generate_financial_analysis.py")
+    report_script = os.path.join(PROJECT_ROOT, "core", "src", "create_equity_report.py")
+    pdf_script = os.path.join(PROJECT_ROOT, "core", "src", "generate_pdf_report.py")
+
+    # Determine paths
+    analysis_dir = os.path.join(OUTPUT_DIR, req.ticker, "analysis")
+    report_output_dir = os.path.join(OUTPUT_DIR, req.ticker, "report")
+    os.makedirs(analysis_dir, exist_ok=True)
+    os.makedirs(report_output_dir, exist_ok=True)
+
+    # 1. Run Financial Analysis
+    append_task_log(task_id, "--- Step 1: Starting Financial Analysis Pipeline ---")
     
+    cmd1 = [
+        python_exe,
+        analysis_script,
+        "--company-ticker", req.ticker,
+        "--company-name", req.company_name,
+        "--config-file", config_path,
+        "--years-limit", str(req.years_limit),
+        "--revenue-growth-2025", str(req.revenue_growth_2025),
+        "--revenue-growth-2026", str(req.revenue_growth_2026),
+        "--revenue-growth-2027", str(req.revenue_growth_2027),
+        "--margin-improvement", str(req.margin_improvement),
+    ]
+    if req.peers:
+        cmd1.extend(["--peer-tickers"] + req.peers)
+    if req.generate_text:
+        cmd1.append("--generate-text-sections")
+    if req.enable_sensitivity_analysis:
+        cmd1.append("--enable-sensitivity-analysis")
+    if req.enable_catalyst_analysis:
+        cmd1.append("--enable-catalyst-analysis")
+    if req.enable_enhanced_news:
+        cmd1.append("--enable-enhanced-news")
+
+    success = run_process(cmd1, task_id, cwd=SRC_ROOT)
+    if not success:
+        tasks[task_id]["status"] = "failed"
+        try:
+            db = SessionLocal()
+            crud.update_report_request(db, task_id, "failed")
+            db.close()
+        except Exception as e:
+            logger.warning(f"Failed to update report status: {e}")
+        return
+
+    # Ensure all required text files exist (so create_equity_report.py doesn't crash)
+    required_text_files = [
+        "tagline", "company_overview", "investment_overview",
+        "valuation_overview", "risks", "competitor_analysis", "major_takeaways"
+    ]
+    for text_type in required_text_files:
+        file_path = os.path.join(analysis_dir, f"{text_type}.txt")
+        if not os.path.exists(file_path):
+            with open(file_path, "w", encoding="utf-8") as f:
+                f.write(f"{req.company_name} ({req.ticker}) {text_type.replace('_', ' ')} details.")
+
+    # 2. Run Report Generator (HTML)
+    append_task_log(task_id, "--- Step 2: Generating HTML Equity Report ---")
+    
+    cmd2 = [
+        python_exe,
+        report_script,
+        "--company-ticker", req.ticker,
+        "--company-name", req.company_name,
+        "--analysis-csv", os.path.join(analysis_dir, "financial_metrics_and_forecasts.csv"),
+        "--ratios-csv", os.path.join(analysis_dir, "ratios_raw_data.csv"),
+        "--tagline-file", os.path.join(analysis_dir, "tagline.txt"),
+        "--company-overview-file", os.path.join(analysis_dir, "company_overview.txt"),
+        "--investment-overview-file", os.path.join(analysis_dir, "investment_overview.txt"),
+        "--valuation-overview-file", os.path.join(analysis_dir, "valuation_overview.txt"),
+        "--risks-file", os.path.join(analysis_dir, "risks.txt"),
+        "--competitor-analysis-file", os.path.join(analysis_dir, "competitor_analysis.txt"),
+        "--major-takeaways-file", os.path.join(analysis_dir, "major_takeaways.txt"),
+        "--config-file", config_path,
+        "--output-dir", report_output_dir,
+    ]
+    
+    optional_mappings = [
+        ("news-summary-file", "news_summary.txt"),
+        ("peer-ebitda-csv", "peer_ebitda_comparison.csv"),
+        ("peer-ev-ebitda-csv", "peer_ev_ebitda_comparison.csv"),
+        ("sensitivity-analysis-file", "sensitivity_analysis.json"),
+        ("catalyst-analysis-file", "catalyst_analysis.json"),
+        ("enhanced-news-file", "enhanced_news.json"),
+        ("retail-sentiment-file", "retail_sentiment.json"),
+    ]
+    for param, filename in optional_mappings:
+        file_path = os.path.join(analysis_dir, filename)
+        if os.path.exists(file_path):
+            cmd2.extend([f"--{param}", file_path])
+            
+    if req.enable_enhanced_charts:
+        cmd2.append("--enable-enhanced-charts")
+    if req.enable_valuation_analysis:
+        cmd2.append("--enable-valuation-analysis")
+    if req.generate_text:
+        cmd2.append("--enable-text-regeneration")
+
+    success = run_process(cmd2, task_id, cwd=SRC_ROOT)
+    if not success:
+        tasks[task_id]["status"] = "failed"
+        try:
+            db = SessionLocal()
+            crud.update_report_request(db, task_id, "failed")
+            db.close()
+        except Exception as e:
+            logger.warning(f"Failed to update report status: {e}")
+        return
+
+    # 3. Run PDF Report Generator (optional)
+    if req.generate_pdf:
+        append_task_log(task_id, "--- Step 3: Generating PDF Equity Report ---")
+        cmd3 = [
+            python_exe,
+            pdf_script,
+            "--company-ticker", req.ticker,
+            "--company-name", req.company_name,
+            "--analysis-dir", analysis_dir,
+            "--output-dir", report_output_dir,
+            "--config-file", config_path,
+        ]
+        success = run_process(cmd3, task_id, cwd=SRC_ROOT)
+        if not success:
+            tasks[task_id]["status"] = "failed"
+            try:
+                db = SessionLocal()
+                crud.update_report_request(db, task_id, "failed")
+                db.close()
+            except Exception as e:
+                logger.warning(f"Failed to update report status: {e}")
+            return
+
     # Phase 5: Complete (100%)
     tasks[task_id]["status"] = "completed"
     append_task_log(task_id, "Pipeline completed successfully!")
@@ -398,11 +485,23 @@ def execute_analysis_pipeline(task_id: str, req: AnalysisRequest):
     except Exception as e:
         logger.warning(f"Failed to update report status: {e}")
         
+    html_files = []
+    pdf_files = []
+    if os.path.exists(report_output_dir):
+        all_files = os.listdir(report_output_dir)
+        prof_html = [f for f in all_files if f.endswith('.html') and 'Professional' in f]
+        other_html = [f for f in all_files if f.endswith('.html') and 'Professional' not in f] if not prof_html else []
+        html_files = prof_html + other_html
+        
+        prof_pdf = [f for f in all_files if f.endswith('.pdf') and 'Professional_Equity_Report' in f]
+        other_pdf = [f for f in all_files if f.endswith('.pdf') and 'Equity_Report' in f and f not in prof_pdf] if not prof_pdf else []
+        pdf_files = prof_pdf + other_pdf
+
     tasks[task_id]["result"] = {
         "report_dir": report_output_dir,
         "ticker": req.ticker,
-        "html": sorted_htmls,
-        "pdf": sorted_pdfs
+        "html": html_files,
+        "pdf": pdf_files
     }
 
 @app.post("/api/run")
@@ -628,3 +727,257 @@ async def list_reports(ticker: str, request: Request):
     
     reports = [f for f in os.listdir(report_dir) if f.endswith((".html", ".pdf"))]
     return {"reports": reports}
+
+
+# ============== Portfolio, Watchlist, Chat & Market Routes ==============
+from .portfolio_engine import fetch_batch_quotes, fetch_market_indices, search_ticker, fetch_stock_quote
+from .chat_engine import FinancialChatEngine
+from .database.models import PortfolioHolding, WatchlistItem
+
+chat_engine = FinancialChatEngine()
+
+# --- Portfolio Holding Models ---
+class HoldingCreate(BaseModel):
+    symbol: str
+    company_name: Optional[str] = ""
+    shares: float
+    buy_price: float
+    buy_date: str
+    market: Optional[str] = "US"
+
+class WatchlistCreate(BaseModel):
+    symbol: str
+    company_name: Optional[str] = ""
+    market: Optional[str] = "US"
+
+
+# --- Portfolio Holdings ---
+@app.get("/api/portfolio")
+async def get_portfolio(request: Request):
+    user = get_current_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    db = SessionLocal()
+    holdings = db.query(PortfolioHolding).filter(PortfolioHolding.user_id == user["id"]).all()
+    result = []
+    for h in holdings:
+        result.append({
+            "id": h.id,
+            "symbol": h.symbol,
+            "company_name": h.company_name or h.symbol,
+            "shares": float(h.shares or 0),
+            "buy_price": float(h.buy_price or 0),
+            "buy_date": h.buy_date,
+            "market": h.market or "US",
+        })
+    db.close()
+
+    # Enrich with live quotes
+    if result:
+        try:
+            symbols_by_market: Dict[str, List[str]] = {}
+            for h in result:
+                m = h["market"]
+                symbols_by_market.setdefault(m, []).append(h["symbol"])
+
+            quote_map: Dict[str, dict] = {}
+            import asyncio
+            for mkt, syms in symbols_by_market.items():
+                quotes = await fetch_batch_quotes(syms, mkt)
+                for q in quotes:
+                    quote_map[q["symbol"]] = q
+
+            for h in result:
+                q = quote_map.get(h["symbol"], {})
+                current_price = q.get("price", 0)
+                h["current_price"] = current_price
+                h["currency"] = q.get("currency", "$")
+                h["name"] = q.get("name") or h["company_name"]
+                h["changePercent"] = q.get("changePercent", 0)
+                h["sparkline"] = q.get("sparkline", [])
+                invested = h["shares"] * h["buy_price"]
+                current_val = h["shares"] * current_price
+                h["invested"] = invested
+                h["current_value"] = current_val
+                h["pnl"] = current_val - invested
+                h["pnl_pct"] = ((current_val - invested) / invested * 100) if invested > 0 else 0
+        except Exception as e:
+            logger.warning(f"Failed to enrich portfolio with live quotes: {e}")
+
+    return result
+
+
+@app.post("/api/portfolio")
+async def add_holding(body: HoldingCreate, request: Request):
+    user = get_current_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    db = SessionLocal()
+    h = PortfolioHolding(
+        user_id=user["id"],
+        symbol=body.symbol.upper().strip(),
+        company_name=body.company_name,
+        shares=str(body.shares),
+        buy_price=str(body.buy_price),
+        buy_date=body.buy_date,
+        market=body.market,
+    )
+    db.add(h)
+    db.commit()
+    db.refresh(h)
+    db.close()
+    return {"id": h.id, "symbol": h.symbol, "message": "Holding added"}
+
+
+@app.delete("/api/portfolio/{holding_id}")
+async def delete_holding(holding_id: int, request: Request):
+    user = get_current_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    db = SessionLocal()
+    h = db.query(PortfolioHolding).filter(
+        PortfolioHolding.id == holding_id,
+        PortfolioHolding.user_id == user["id"]
+    ).first()
+    if not h:
+        db.close()
+        raise HTTPException(status_code=404, detail="Holding not found")
+    db.delete(h)
+    db.commit()
+    db.close()
+    return {"success": True}
+
+
+# --- Watchlist ---
+@app.get("/api/watchlist")
+async def get_watchlist(request: Request):
+    user = get_current_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    db = SessionLocal()
+    items = db.query(WatchlistItem).filter(WatchlistItem.user_id == user["id"]).all()
+    result = [{"id": i.id, "symbol": i.symbol, "company_name": i.company_name or i.symbol, "market": i.market or "US"} for i in items]
+    db.close()
+
+    if result:
+        try:
+            symbols_by_market: Dict[str, List[str]] = {}
+            for item in result:
+                m = item["market"]
+                symbols_by_market.setdefault(m, []).append(item["symbol"])
+
+            quote_map: Dict[str, dict] = {}
+            for mkt, syms in symbols_by_market.items():
+                quotes = await fetch_batch_quotes(syms, mkt)
+                for q in quotes:
+                    quote_map[q["symbol"]] = q
+
+            for item in result:
+                q = quote_map.get(item["symbol"], {})
+                item["price"] = q.get("price", 0)
+                item["currency"] = q.get("currency", "$")
+                item["change"] = q.get("change", 0)
+                item["changePercent"] = q.get("changePercent", 0)
+                item["volume"] = q.get("volume", "--")
+                item["marketCap"] = q.get("marketCap", "--")
+                item["name"] = q.get("name") or item["company_name"]
+                item["sparkline"] = q.get("sparkline", [])
+        except Exception as e:
+            logger.warning(f"Failed to enrich watchlist with live quotes: {e}")
+
+    return result
+
+
+@app.post("/api/watchlist")
+async def add_watchlist(body: WatchlistCreate, request: Request):
+    user = get_current_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    db = SessionLocal()
+    item = WatchlistItem(
+        user_id=user["id"],
+        symbol=body.symbol.upper().strip(),
+        company_name=body.company_name,
+        market=body.market,
+    )
+    db.add(item)
+    db.commit()
+    db.refresh(item)
+    db.close()
+    return {"id": item.id, "symbol": item.symbol, "message": "Added to watchlist"}
+
+
+@app.delete("/api/watchlist/{item_id}")
+async def delete_watchlist(item_id: int, request: Request):
+    user = get_current_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    db = SessionLocal()
+    item = db.query(WatchlistItem).filter(
+        WatchlistItem.id == item_id,
+        WatchlistItem.user_id == user["id"]
+    ).first()
+    if not item:
+        db.close()
+        raise HTTPException(status_code=404, detail="Item not found")
+    db.delete(item)
+    db.commit()
+    db.close()
+    return {"success": True}
+
+
+# --- Market Indices ---
+@app.get("/api/market/indices")
+async def get_market_indices(market: str = "US", request: Request = None):
+    if request:
+        user = get_current_user(request)
+        if not user:
+            raise HTTPException(status_code=401, detail="Not authenticated")
+    try:
+        indices = await fetch_market_indices(market)
+        return indices
+    except Exception as e:
+        logger.warning(f"Failed to fetch market indices: {e}")
+        return []
+
+
+# --- Symbol Search ---
+@app.get("/api/market/search")
+async def search_market(q: str, market: str = "US", request: Request = None):
+    if request:
+        user = get_current_user(request)
+        if not user:
+            raise HTTPException(status_code=401, detail="Not authenticated")
+    try:
+        results = await search_ticker(q, market)
+        return results
+    except Exception as e:
+        logger.warning(f"Symbol search failed: {e}")
+        return []
+
+
+# --- AI Chat (streaming SSE) ---
+from fastapi.responses import StreamingResponse
+import asyncio
+
+@app.get("/api/chat/stream")
+async def chat_stream(message: str, history_json: str = "[]", market: str = "US", request: Request = None):
+    if request:
+        user = get_current_user(request)
+        if not user:
+            raise HTTPException(status_code=401, detail="Not authenticated")
+
+    try:
+        history = json.loads(history_json) if history_json else []
+    except Exception:
+        history = []
+
+    async def event_generator():
+        try:
+            async for chunk in chat_engine.chat_stream(message, history, market):
+                data = json.dumps({"content": chunk})
+                yield f"data: {data}\n\n"
+        except Exception as e:
+            yield f"data: {json.dumps({'content': f'Error: {e}'})}\n\n"
+
+    return StreamingResponse(event_generator(), media_type="text/event-stream")
