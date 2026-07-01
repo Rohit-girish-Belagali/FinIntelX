@@ -414,9 +414,199 @@ def get_fmp_market_cap(ticker: str, api_key: str) -> float | None:
         print(f"Error processing market cap data for {ticker}: {e}")
         return None
 
+def _get_yfinance_metrics_fallback(ticker: str) -> dict:
+    """Fallback using yfinance for tickers not supported by FMP (e.g., Indian NSE/BSE stocks)."""
+    info = {}
+    yf_symbol = ticker
+    try:
+        # Try without suffix first, then .NS, then .BO
+        for suffix in ["", ".NS", ".BO"]:
+            candidate = ticker + suffix if suffix else ticker
+            t = yf.Ticker(candidate)
+            info = t.info or {}
+            if info.get('regularMarketPrice') or info.get('currentPrice'):
+                yf_symbol = candidate
+                break
+        if not info:
+            return {}
+    except Exception as e:
+        print(f"yfinance fallback failed for {ticker}: {e}")
+        return {}
+
+    price = info.get('currentPrice') or info.get('regularMarketPrice')
+    prev_close = info.get('previousClose') or info.get('regularMarketPreviousClose')
+    mkt_cap_raw = info.get('marketCap')
+    year_high = info.get('fiftyTwoWeekHigh')
+    year_low = info.get('fiftyTwoWeekLow')
+    currency = info.get('currency', 'INR')
+    currency_sym = '₹' if currency == 'INR' else '$'
+
+    roe_raw = info.get('returnOnEquity')
+    div_yield_raw = info.get('dividendYield')
+
+    return {
+        'share_price': float(price) if price else None,
+        'target_price': info.get('targetMeanPrice'),
+        'market_cap': float(mkt_cap_raw) / 1e9 if mkt_cap_raw else None,
+        'volume': float(info.get('averageVolume', 0)) / 1e6 if info.get('averageVolume') else None,
+        'fwd_pe': info.get('forwardPE') or info.get('trailingPE'),
+        'pb_ratio': info.get('priceToBook'),
+        'dividend_yield': (div_yield_raw * 100) if div_yield_raw else None,
+        'free_float': 95.0,
+        'roe': (roe_raw * 100) if roe_raw else None,
+        'net_debt_to_equity': info.get('debtToEquity'),
+        'rating': 'N/A',
+        'beta': info.get('beta'),
+        'sector': info.get('sector', 'N/A'),
+        'industry': info.get('industry', 'N/A'),
+        'exchange': info.get('exchange', 'NSE'),
+        '52w_range': f"{currency_sym}{year_low:.2f} - {currency_sym}{year_high:.2f}" if year_high and year_low else None,
+        'shares_outstanding': info.get('sharesOutstanding'),
+        'currency_sym': currency_sym,
+    }
+
+
 def get_comprehensive_company_metrics(ticker: str, api_key: str) -> dict:
-    """Fetches all key company metrics needed for equity report from FMP API."""
+    """Fetches all key company metrics needed for equity report from FMP API,
+    with automatic yfinance fallback for Indian/non-US tickers not supported by FMP."""
     print(f"Fetching comprehensive company metrics for {ticker}...")
+
+    metrics = {
+        'share_price': None,
+        'target_price': None,
+        'market_cap': None,
+        'volume': None,
+        'fwd_pe': None,
+        'pb_ratio': None,
+        'dividend_yield': None,
+        'free_float': None,
+        'roe': None,
+        'net_debt_to_equity': None,
+        'rating': None,
+        'beta': None,
+        'sector': None,
+        'industry': None,
+        'exchange': None,
+        '52w_range': None,
+        'shares_outstanding': None,
+    }
+
+    # 1. Get current price and basic quote data
+    current_price = get_fmp_current_price(ticker, api_key)
+    if current_price:
+        metrics['share_price'] = current_price
+
+    # 2. Get target price and rating
+    target_price = get_fmp_target_price(ticker, api_key)
+    if target_price:
+        metrics['target_price'] = target_price
+
+    rating = get_fmp_analyst_rating(ticker, api_key)
+    if rating:
+        metrics['rating'] = rating
+
+    # 3. Get company profile data
+    profile = get_fmp_company_profile(ticker, api_key)
+    if profile:
+        market_cap_val = profile.get('marketCap') or profile.get('mktCap')
+        metrics['market_cap'] = float(market_cap_val) / 1e9 if market_cap_val else None
+
+        volume_val = profile.get('averageVolume') or profile.get('volAvg')
+        metrics['volume'] = float(volume_val) / 1e6 if volume_val else None
+
+        metrics['beta'] = profile.get('beta')
+        metrics['sector'] = profile.get('sector', 'N/A')
+        metrics['industry'] = profile.get('industry', 'N/A')
+        metrics['exchange'] = profile.get('exchange') or profile.get('exchangeShortName', 'N/A')
+
+    # 4. Get detailed quote data (volume, 52w range, shares outstanding)
+    try:
+        quote_url = f"https://financialmodelingprep.com/stable/quote?symbol={ticker}&apikey={api_key}"
+        response = requests.get(quote_url)
+        response.raise_for_status()
+        quote_data = response.json()
+        if quote_data and isinstance(quote_data, list) and len(quote_data) > 0:
+            quote = quote_data[0]
+            if not metrics['volume']:
+                avg_volume = quote.get('avgVolume')
+                if avg_volume:
+                    metrics['volume'] = avg_volume / 1e6
+            year_high = quote.get('yearHigh')
+            year_low = quote.get('yearLow')
+            if year_high is not None and year_low is not None:
+                metrics['52w_range'] = f"${year_low:.2f} - ${year_high:.2f}"
+            shares_out = quote.get('sharesOutstanding')
+            if shares_out:
+                metrics['shares_outstanding'] = float(shares_out)
+    except Exception as e:
+        print(f"Warning: Could not fetch quote data: {e}")
+
+    # 5. Get financial ratios
+    try:
+        ratios_df, key_metrics_df = get_fmp_ratios_and_key_metrics(ticker, api_key, limit=1)
+
+        if ratios_df is not None and not ratios_df.empty:
+            latest_ratios = ratios_df.iloc[0]
+            metrics['pb_ratio'] = latest_ratios.get('priceToBookRatio')
+            metrics['roe'] = latest_ratios.get('returnOnEquity')
+            if latest_ratios.get('returnOnEquity'):
+                metrics['roe'] = latest_ratios['returnOnEquity'] * 100
+            metrics['net_debt_to_equity'] = latest_ratios.get('debtEquityRatio')
+            metrics['fwd_pe'] = latest_ratios.get('priceEarningsRatio')
+
+        if key_metrics_df is not None and not key_metrics_df.empty:
+            latest_key_metrics = key_metrics_df.iloc[0]
+            if latest_key_metrics.get('peRatio'):
+                metrics['fwd_pe'] = latest_key_metrics['peRatio']
+            if latest_key_metrics.get('pbRatio'):
+                metrics['pb_ratio'] = latest_key_metrics['pbRatio']
+    except Exception as e:
+        print(f"Warning: Could not fetch financial ratios: {e}")
+
+    # 6. Get dividend yield from profile or financial data
+    if profile:
+        last_div_val = profile.get('lastDividend') or profile.get('lastDiv')
+        if last_div_val and current_price and float(last_div_val) > 0:
+            annual_dividend = float(last_div_val)
+            metrics['dividend_yield'] = (annual_dividend / current_price) * 100
+
+    # 7. Shares outstanding / free float
+    try:
+        if profile and profile.get('sharesOutstanding'):
+            metrics['free_float'] = 95.0
+    except Exception as e:
+        print(f"Warning: Could not calculate free float: {e}")
+
+    # ---------------------------------------------------------------
+    # YFINANCE FALLBACK: If FMP returned no price (e.g. Indian tickers)
+    # ---------------------------------------------------------------
+    if not metrics['share_price']:
+        print(f"[INFO] FMP returned no price for {ticker}. Trying yfinance fallback...")
+        yf_data = _get_yfinance_metrics_fallback(ticker)
+        if yf_data:
+            for key, val in yf_data.items():
+                if key == 'currency_sym':
+                    continue
+                if metrics.get(key) is None and val is not None:
+                    metrics[key] = val
+            # Override 52w range with proper currency symbol
+            if yf_data.get('52w_range'):
+                metrics['52w_range'] = yf_data['52w_range']
+            print(f"[INFO] yfinance fallback populated {ticker} data: price={metrics['share_price']}, mkt_cap={metrics['market_cap']}")
+        else:
+            print(f"[WARN] yfinance fallback also failed for {ticker}")
+
+    # Fill in defaults
+    if metrics['free_float'] is None:
+        metrics['free_float'] = 95.0
+    if metrics['sector'] is None:
+        metrics['sector'] = 'Technology'
+    if metrics['rating'] is None:
+        metrics['rating'] = 'N/A'
+
+    print(f"Successfully fetched metrics for {ticker}")
+    return metrics
+
     
     metrics = {
         'share_price': None,

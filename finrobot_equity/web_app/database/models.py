@@ -28,6 +28,8 @@ class User(Base):
     sessions = relationship("Session", back_populates="user", cascade="all, delete-orphan")
     request_logs = relationship("RequestLog", back_populates="user", cascade="all, delete-orphan")
     report_requests = relationship("ReportRequest", back_populates="user", cascade="all, delete-orphan")
+    portfolio_holdings = relationship("PortfolioHolding", back_populates="user", cascade="all, delete-orphan")
+    watchlist_items = relationship("WatchlistItem", back_populates="user", cascade="all, delete-orphan")
     
     def __repr__(self):
         return f"<User(id={self.id}, email='{self.email}', name='{self.name}')>"
@@ -104,3 +106,40 @@ class ReportRequest(Base):
     
     def __repr__(self):
         return f"<ReportRequest(id={self.id}, ticker='{self.ticker}', status='{self.status}')>"
+
+
+class PortfolioHolding(Base):
+    """Portfolio holding (owned stock with buy info)"""
+    __tablename__ = "portfolio_holdings"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    symbol = Column(String(30), nullable=False)
+    company_name = Column(String(255))
+    shares = Column(String(50), default="0")       # stored as string for flexibility
+    buy_price = Column(String(50), default="0")    # cost per share
+    buy_date = Column(String(30))                  # ISO date string
+    market = Column(String(10), default="US")      # US or IN
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    user = relationship("User", back_populates="portfolio_holdings")
+
+    def __repr__(self):
+        return f"<PortfolioHolding(symbol='{self.symbol}', user={self.user_id})>"
+
+
+class WatchlistItem(Base):
+    """Watchlist item (just tracking, no buy info)"""
+    __tablename__ = "watchlist_items"
+
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    symbol = Column(String(30), nullable=False)
+    company_name = Column(String(255))
+    market = Column(String(10), default="US")
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    user = relationship("User", back_populates="watchlist_items")
+
+    def __repr__(self):
+        return f"<WatchlistItem(symbol='{self.symbol}', user={self.user_id})>"

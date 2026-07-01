@@ -217,16 +217,14 @@ def prepare_credit_metrics_df(ratios_df: pd.DataFrame) -> pd.DataFrame:
     if ratios_df is None or ratios_df.empty:
         return pd.DataFrame()
     
-    # 定义要提取的指标映射
-    metric_mapping = {
-        'debtEquityRatio': 'Debt/Equity',
-        'debtRatio': 'Debt/Assets',
-        'interestCoverage': 'Interest Coverage',
-        'netProfitMargin': 'Net Margin',
-        'currentRatio': 'Current Ratio',
-        'cashFlowToDebtRatio': 'CF to Debt Ratio'
-    }
-    
+    # Dynamic column resolution to support standard vs stable FMP endpoints
+    col_debt_equity = 'debtToEquityRatio' if 'debtToEquityRatio' in ratios_df.columns else ('debtEquityRatio' if 'debtEquityRatio' in ratios_df.columns else 'debtEquityRatio')
+    col_debt_assets = 'debtToAssetsRatio' if 'debtToAssetsRatio' in ratios_df.columns else ('debtRatio' if 'debtRatio' in ratios_df.columns else 'debtRatio')
+    col_interest_cov = 'interestCoverageRatio' if 'interestCoverageRatio' in ratios_df.columns else ('interestCoverage' if 'interestCoverage' in ratios_df.columns else 'interestCoverage')
+    col_net_margin = 'netProfitMargin'
+    col_current_ratio = 'currentRatio'
+    col_cf_debt = 'operatingCashFlowCoverageRatio' if 'operatingCashFlowCoverageRatio' in ratios_df.columns else ('cashFlowToDebtRatio' if 'cashFlowToDebtRatio' in ratios_df.columns else 'cashFlowToDebtRatio')
+
     if 'calendarYear' not in ratios_df.columns:
         return pd.DataFrame()
     
@@ -234,21 +232,39 @@ def prepare_credit_metrics_df(ratios_df: pd.DataFrame) -> pd.DataFrame:
     ratios_df = ratios_df.sort_values(by='calendarYear').reset_index(drop=True)
     
     # 构建新的DataFrame
-    result_data = {'Metrics': list(metric_mapping.values())}
+    result_data = {
+        'Metrics': [
+            'Debt/Equity',
+            'Debt/Assets',
+            'Interest Coverage',
+            'Net Margin',
+            'Current Ratio',
+            'CF to Debt Ratio'
+        ]
+    }
     
     for year in ratios_df['calendarYear'].unique():
         year_str = f"{int(year)}A"
         year_data = ratios_df[ratios_df['calendarYear'] == year].iloc[0]
         
         values = []
-        for csv_col, display_name in metric_mapping.items():
+        for csv_col in [col_debt_equity, col_debt_assets, col_interest_cov, col_net_margin, col_current_ratio, col_cf_debt]:
             if csv_col in year_data and pd.notna(year_data[csv_col]):
                 val = year_data[csv_col]
-                if csv_col == 'interestCoverage':
+                try:
+                    val = float(val)
+                except (ValueError, TypeError):
+                    values.append(str(val))
+                    continue
+                
+                if csv_col == col_interest_cov:
                     values.append(f"{val:.1f}x")
-                elif csv_col == 'netProfitMargin':
-                    values.append(f"{val*100:.1f}%")
-                elif csv_col in ['currentRatio', 'cashFlowToDebtRatio']:
+                elif csv_col == col_net_margin:
+                    if val > 1.0 or val < -1.0:
+                        values.append(f"{val:.1f}%")
+                    else:
+                        values.append(f"{val*100:.1f}%")
+                elif csv_col in [col_current_ratio, col_cf_debt]:
                     values.append(f"{val:.2f}")
                 else:
                     values.append(f"{val:.2f}")

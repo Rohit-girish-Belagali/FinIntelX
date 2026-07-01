@@ -398,8 +398,7 @@ HTML_PROFESSIONAL_TEMPLATE = """
                     </div>
                 </div>
                 <div class="chart-container">
-                    <img src="{eps_pe_chart_path}" alt="EPS & PE Chart">
-                    <p class="caption mt-2">Source: Company Filings</p>
+                    {eps_pe_chart_html}
                 </div>
             </div>
         </section>
@@ -418,8 +417,7 @@ HTML_PROFESSIONAL_TEMPLATE = """
                     {peer_ev_ebitda_table_html}
                 </div>
                 <div class="chart-container">
-                    <img src="{ev_ebitda_chart_path}" alt="EV/EBITDA Peer Comparison">
-                    <p class="caption mt-2">EV/EBITDA Peer Comparison</p>
+                    {ev_ebitda_chart_html}
                 </div>
             </div>
         </section>
@@ -1005,6 +1003,7 @@ def get_rating_color_class(rating: str) -> str:
 
 def render_professional_html_report(data: dict) -> str:
     """渲染专业 HTML 报告"""
+    import os
     from datetime import datetime
 
     # Prepare data with defaults
@@ -1031,11 +1030,11 @@ def render_professional_html_report(data: dict) -> str:
         'revenue_chart_path': data.get('revenue_chart_path', ''),
         'eps_analysis_text': data.get('eps_analysis_text', 'Earnings analysis shows the company\'s profitability trends.'),
         'eps_key_figures_html': format_key_figures_html(data.get('eps_key_figures', {})),
-        'eps_pe_chart_path': data.get('eps_pe_chart_path', ''),
+        'eps_pe_chart_html': f'<img src="{os.path.basename(data["eps_pe_chart_path"])}" alt="EPS & PE Chart"><p class="caption mt-2">Source: Company Filings</p>' if data.get('eps_pe_chart_path') and os.path.exists(data['eps_pe_chart_path']) else '<div style="display:flex; flex-direction:column; justify-content:center; align-items:center; height:180px; background:#f8fafc; border:1px dashed #cbd5e1; border-radius:6px; color:#64748b; font-size:0.8rem; text-align:center; padding:1rem;"><svg style="width:24px; height:24px; color:#94a3b8; margin-bottom:0.5rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>Chart data not available for this period</div>',
         'valuation_overview': _markdown_to_html(data.get('valuation_overview', 'Valuation analysis not available.')),
         'valuation_breakdown_html': format_valuation_breakdown_html(data.get('valuation_analysis', {})),
         'peer_ev_ebitda_table_html': data.get('peer_ev_ebitda_table_html', '<p class="body-text" style="color:#94a3b8; font-style:italic;">Peer comparison data not available.</p>'),
-        'ev_ebitda_chart_path': data.get('ev_ebitda_chart_path', ''),
+        'ev_ebitda_chart_html': f'<img src="{os.path.basename(data["ev_ebitda_chart_path"])}" alt="EV/EBITDA Peer Comparison"><p class="caption mt-2">EV/EBITDA Peer Comparison</p>' if data.get('ev_ebitda_chart_path') and os.path.exists(data['ev_ebitda_chart_path']) else '<div style="display:flex; flex-direction:column; justify-content:center; align-items:center; height:180px; background:#f8fafc; border:1px dashed #cbd5e1; border-radius:6px; color:#64748b; font-size:0.8rem; text-align:center; padding:1rem;"><svg style="width:24px; height:24px; color:#94a3b8; margin-bottom:0.5rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>Peer EV/EBITDA Chart not available for this ticker</div>',
         'news_summary': _markdown_to_html(data.get('news_summary', 'Recent news coverage not available.')),
         'retail_sentiment_html': format_retail_sentiment_html_professional(data.get('retail_sentiment', {})),
         'enhanced_news_html': format_enhanced_news_html_professional(data.get('enhanced_news', {})),

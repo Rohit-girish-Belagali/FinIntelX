@@ -386,9 +386,9 @@
                         
                         const currentPath = window.location.pathname;
                         if (currentPath.endsWith("login.html") || currentPath.endsWith("login")) {
-                            window.location.href = currentPath.replace("login.html", "index.html").replace("login", "index.html");
+                            window.location.href = currentPath.replace("login.html", "").replace("login", "");
                         } else {
-                            window.location.href = "index.html";
+                            window.location.href = "/";
                         }
                     } else {
                         this.error = 'Invalid email or password';

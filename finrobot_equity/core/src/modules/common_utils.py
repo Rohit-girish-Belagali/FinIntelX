@@ -20,11 +20,24 @@ def load_config(config_path=None):
     return config
 
 def get_api_key(config, section="API_KEYS", key="fmp_api_key"):
-    """Retrieves a specific API key from the loaded configuration."""
+    """Retrieves a specific API key from the loaded configuration, falling back to environment variables."""
+    # Try environment variable first (upper-case)
+    env_key = key.upper()
+    if os.environ.get(env_key):
+        return os.environ[env_key]
+
     try:
-        return config.get(section, key)
-    except (configparser.NoSectionError, configparser.NoOptionError) as e:
-        raise ValueError(f"Error retrieving API key 	'{key}' from section '{section}': {e}. Check your config file.")
+        val = config.get(section, key)
+        if val and not val.startswith("YOUR_"):
+            return val
+    except (configparser.NoSectionError, configparser.NoOptionError):
+        pass
+
+    # Try environment variable with raw key name
+    if os.environ.get(key):
+        return os.environ[key]
+
+    raise ValueError(f"Error retrieving API key '{key}' from section '{section}'. Check your config file or environment variables.")
 
 # Example of how to add argument parsing setup if needed for common arguments,
 # but typically each script will define its own specific arguments.
